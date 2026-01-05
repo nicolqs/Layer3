@@ -1,28 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { Transaction } from '@/lib/types';
-
-const generateMockTransactions = (address: string, count: number = 20): Transaction[] => {
-  const seed = parseInt(address.slice(2, 10), 16);
-  return Array.from({ length: count }, (_, i) => ({
-    hash: `0x${Math.random().toString(16).slice(2, 66).padStart(64, '0')}`,
-    from: i % 2 === 0 ? address : `0x${Math.random().toString(16).slice(2, 42).padStart(40, '0')}`,
-    to: i % 2 === 0 ? `0x${Math.random().toString(16).slice(2, 42).padStart(40, '0')}` : address,
-    value: (Math.random() * 10).toFixed(6),
-    timestamp: Date.now() - (i * 86400000 * (seed % 30 + 1)),
-    chainId: [1, 137, 42161, 10, 8453][i % 5],
-    status: Math.random() > 0.05 ? 'success' : 'failed',
-  })).sort((a, b) => b.timestamp - a.timestamp);
-};
+import { EtherscanTransaction } from '@/lib/types';
+import { NextResponse } from 'next/server';
 
 export async function GET(
-  request: NextRequest,
+  _request: Request,
   { params }: { params: Promise<{ address: string }> }
 ) {
   try {
     const { address } = await params;
-    const searchParams = request.nextUrl.searchParams;
-    const chainId = searchParams.get('chainId');
-    const limit = parseInt(searchParams.get('limit') || '20');
 
     if (!address || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
       return NextResponse.json(
@@ -37,11 +21,21 @@ export async function GET(
     // Use Arbiscan API for Arbitrum
     // etc.
 
-    let transactions = generateMockTransactions(address, limit);
+    // Use Etherscan V2 API (requires chainid parameter)
+    const etherscanUrl = `https://api.etherscan.io/v2/api?chainid=1&module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&sort=desc&apikey=${process.env.ETHERSCAN_API_KEY}`;
+    const response = await fetch(etherscanUrl);
+    const data = await response.json();
 
-    if (chainId) {
-      transactions = transactions.filter(tx => tx.chainId === parseInt(chainId));
+    // Check if Etherscan returned an error
+    if (data.status === "0" || !Array.isArray(data.result)) {
+      console.error('Etherscan API error:', data.message, data.result);
+      return NextResponse.json([]);
     }
+
+    const transactions: EtherscanTransaction[] = data.result;
+
+    // Note: chainId filter doesn't apply here as we're only fetching from Ethereum mainnet (chainid=1)
+    // If you need multi-chain support, you'd need separate API calls per chain
 
     return NextResponse.json(transactions);
   } catch (error) {

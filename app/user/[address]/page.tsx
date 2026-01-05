@@ -1,19 +1,19 @@
 'use client';
 
-import { use } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { fetcher } from '@/lib/fetcher';
-import { User, TokenBalance, Transaction, NFT } from '@/lib/types';
+import { AlchemyNFT, EtherscanTransaction, TokenBalance, User } from '@/lib/types';
 import { getChainName } from '@/lib/viem';
-import { ThemeToggle } from '@/components/theme-toggle';
+import { useQuery } from '@tanstack/react-query';
+import { Activity, ArrowLeft, Award, ExternalLink, Trophy, Wallet } from 'lucide-react';
 import Link from 'next/link';
-import { ArrowLeft, ExternalLink, Trophy, Award, Wallet, Activity } from 'lucide-react';
+import { use } from 'react';
 
 export default function UserDetailPage({ params }: { params: Promise<{ address: string }> }) {
   const { address } = use(params);
@@ -30,12 +30,12 @@ export default function UserDetailPage({ params }: { params: Promise<{ address: 
 
   const { data: transactions, isLoading: transactionsLoading } = useQuery({
     queryKey: ['transactions', address],
-    queryFn: () => fetcher<Transaction[]>(`/api/user/${address}/transactions`),
+    queryFn: () => fetcher<EtherscanTransaction[]>(`/api/user/${address}/transactions`),
   });
 
   const { data: nfts, isLoading: nftsLoading } = useQuery({
     queryKey: ['nfts', address],
-    queryFn: () => fetcher<NFT[]>(`/api/user/${address}/nfts`),
+    queryFn: () => fetcher<AlchemyNFT[]>(`/api/user/${address}/nfts`),
   });
 
   if (userLoading) {
@@ -233,7 +233,7 @@ export default function UserDetailPage({ params }: { params: Promise<{ address: 
                       <TableRow>
                         <TableHead>Hash</TableHead>
                         <TableHead>Type</TableHead>
-                        <TableHead>Chain</TableHead>
+                        <TableHead>Status</TableHead>
                         <TableHead className="text-right">Value</TableHead>
                         <TableHead className="text-right">Date</TableHead>
                       </TableRow>
@@ -258,11 +258,15 @@ export default function UserDetailPage({ params }: { params: Promise<{ address: 
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            <Badge variant="outline">{getChainName(tx.chainId)}</Badge>
+                            <Badge variant={tx.isError === "0" ? "outline" : "destructive"}>
+                              {tx.isError === "0" ? "Success" : "Failed"}
+                            </Badge>
                           </TableCell>
-                          <TableCell className="text-right">{parseFloat(tx.value).toFixed(4)} ETH</TableCell>
+                          <TableCell className="text-right">
+                            {(parseInt(tx.value) / 1e18).toFixed(8)} ETH
+                          </TableCell>
                           <TableCell className="text-right text-xs text-muted-foreground">
-                            {new Date(tx.timestamp).toLocaleDateString()}
+                            {new Date(parseInt(tx.timeStamp) * 1000).toLocaleDateString()}
                           </TableCell>
                         </TableRow>
                       ))}
@@ -293,26 +297,41 @@ export default function UserDetailPage({ params }: { params: Promise<{ address: 
                   </div>
                 ) : nfts && nfts.length > 0 ? (
                   <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
-                    {nfts.map((nft, i) => (
-                      <Card key={i} className="overflow-hidden">
-                        <div className="aspect-square bg-muted">
-                          <img
-                            src={nft.image}
-                            alt={nft.name}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <CardHeader className="p-4">
-                          <CardTitle className="text-sm truncate">{nft.name}</CardTitle>
-                          <CardDescription className="text-xs">
-                            {nft.collection}
-                          </CardDescription>
-                          <Badge variant="outline" className="w-fit text-xs mt-2">
-                            {getChainName(nft.chainId)}
-                          </Badge>
-                        </CardHeader>
-                      </Card>
-                    ))}
+                    {nfts.map((nft, i) => {
+                      const imageUrl = nft.image?.cachedUrl || nft.image?.thumbnailUrl || nft.image?.pngUrl || nft.raw?.metadata?.image || '';
+                      const nftName = nft.name || nft.raw?.metadata?.name || `Token #${nft.tokenId}`;
+                      const collectionName = nft.collection?.name || nft.contract?.name || 'Unknown';
+                      
+                      return (
+                        <Card key={`${nft.contract.address}-${nft.tokenId}`} className="overflow-hidden">
+                          <div className="aspect-square bg-muted">
+                            {imageUrl ? (
+                              <img
+                                src={imageUrl}
+                                alt={nftName}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  e.currentTarget.src = `https://api.dicebear.com/7.x/shapes/svg?seed=${nft.contract.address}-${nft.tokenId}`;
+                                }}
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                                No Image
+                              </div>
+                            )}
+                          </div>
+                          <CardHeader className="p-4">
+                            <CardTitle className="text-sm truncate">{nftName}</CardTitle>
+                            <CardDescription className="text-xs truncate">
+                              {collectionName}
+                            </CardDescription>
+                            <Badge variant="outline" className="w-fit text-xs mt-2">
+                              Ethereum
+                            </Badge>
+                          </CardHeader>
+                        </Card>
+                      );
+                    })}
                   </div>
                 ) : (
                   <div className="text-center py-8 text-muted-foreground">

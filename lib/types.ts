@@ -39,6 +39,29 @@ export interface Transaction {
   status: 'success' | 'failed';
 }
 
+export interface EtherscanTransaction {
+  blockNumber: string;
+  timeStamp: string;
+  hash: string;
+  nonce: string;
+  blockHash: string;
+  transactionIndex: string;
+  from: string;
+  to: string;
+  value: string;
+  gas: string;
+  gasPrice: string;
+  isError: string;
+  txreceipt_status: string;
+  input: string;
+  contractAddress: string;
+  cumulativeGasUsed: string;
+  gasUsed: string;
+  confirmations: string;
+  methodId: string;
+  functionName: string;
+}
+
 export interface TokenBalance {
   symbol: string;
   name: string;
@@ -50,12 +73,59 @@ export interface TokenBalance {
   logo?: string;
 }
 
+export interface NFTCollection {
+  name: string;
+  slug?: string;
+  externalUrl?: string;
+  bannerImageUrl?: string;
+}
+
+export interface NFTImage {
+  cachedUrl?: string;
+  thumbnailUrl?: string;
+  pngUrl?: string;
+  contentType?: string;
+  size?: number;
+}
+
+export interface NFTMetadata {
+  name?: string;
+  description?: string;
+  image?: string;
+  external_url?: string;
+  attributes?: Array<{ trait_type: string; value: string }>;
+}
+
+export interface AlchemyNFT {
+  tokenId: string;
+  tokenType: string;
+  name?: string;
+  description?: string;
+  image: NFTImage;
+  raw: {
+    metadata: NFTMetadata;
+    tokenUri?: string;
+  };
+  collection?: NFTCollection;
+  mint?: {
+    mintAddress?: string;
+    blockNumber?: number;
+    timestamp?: string;
+  };
+  contract: {
+    address: string;
+    name?: string;
+    symbol?: string;
+    totalSupply?: string;
+  };
+}
+
 export interface NFT {
   tokenId: string;
   name: string;
   description?: string;
   image: string;
-  collection: string;
+  collection: string | NFTCollection;
   chainId: number;
   contractAddress: string;
 }
