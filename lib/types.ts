@@ -19,6 +19,16 @@ export interface LeaderboardEntry {
   change?: number; // rank change
 }
 
+export interface Layer3User {
+  rank: number;
+  address: string;
+  avatarCid?: string;
+  username?: string;
+  gmStreak: number;
+  xp: number;
+  level: number;
+}
+
 export interface Transaction {
   hash: string;
   from: string;

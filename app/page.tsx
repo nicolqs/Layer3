@@ -8,9 +8,9 @@ import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { fetcher } from '@/lib/fetcher';
-import { LeaderboardEntry } from '@/lib/types';
+import { Layer3User } from '@/lib/types';
 import { useQuery } from '@tanstack/react-query';
-import { Minus, Search, TrendingDown, TrendingUp, Trophy } from 'lucide-react';
+import { Search, Trophy } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -19,13 +19,13 @@ export default function LeaderboardPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ['leaderboard'],
-    queryFn: () => fetcher<{ data: LeaderboardEntry[] }>('/api/leaderboard?limit=100'),
+    queryFn: () => fetcher<Layer3User[]>('/api/leaderboard'),
   });
 
-  const leaderboard = data?.data || [];
-  const filteredLeaderboard = leaderboard.filter(entry =>
-    entry.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    entry.ensName?.toLowerCase().includes(searchQuery.toLowerCase())
+  const leaderboard = Array.isArray(data) ? data : [];
+  const filteredLeaderboard = leaderboard.filter((entry) =>
+    entry.address?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    entry.username?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const getRankBadge = (rank: number) => {
@@ -33,22 +33,6 @@ export default function LeaderboardPage() {
     if (rank === 2) return <Trophy className="h-5 w-5 text-gray-400" />;
     if (rank === 3) return <Trophy className="h-5 w-5 text-amber-600" />;
     return <span className="text-sm font-semibold text-muted-foreground">#{rank}</span>;
-  };
-
-  const getChangeIndicator = (change?: number) => {
-    if (!change || change === 0) return <Minus className="h-4 w-4 text-muted-foreground" />;
-    if (change > 0) return (
-      <div className="flex items-center gap-1 text-green-600">
-        <TrendingUp className="h-4 w-4" />
-        <span className="text-xs">{change}</span>
-      </div>
-    );
-    return (
-      <div className="flex items-center gap-1 text-red-600">
-        <TrendingDown className="h-4 w-4" />
-        <span className="text-xs">{Math.abs(change)}</span>
-      </div>
-    );
   };
 
   return (
@@ -87,11 +71,11 @@ export default function LeaderboardPage() {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Quests Completed</CardTitle>
+              <CardTitle className="text-sm font-medium">Avg Level</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {leaderboard.reduce((acc, entry) => acc + entry.questsCompleted, 0).toLocaleString()}
+                {leaderboard.length > 0 ? Math.round(leaderboard.reduce((acc, entry) => acc + entry.level, 0) / leaderboard.length) : 0}
               </div>
             </CardContent>
           </Card>
@@ -128,8 +112,8 @@ export default function LeaderboardPage() {
                     <TableHead className="w-16">Rank</TableHead>
                     <TableHead>User</TableHead>
                     <TableHead className="text-right">XP</TableHead>
-                    <TableHead className="text-right">Quests</TableHead>
-                    <TableHead className="text-right">Change</TableHead>
+                    <TableHead className="text-right">Level</TableHead>
+                    <TableHead className="text-right">GM Streak</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -143,16 +127,16 @@ export default function LeaderboardPage() {
                       <TableCell>
                         <Link href={`/user/${entry.address}`} className="flex items-center gap-3 hover:underline">
                           <Avatar>
-                            <AvatarImage src={entry.avatar} />
+                            <AvatarImage src={entry.avatarCid ? `https://ipfs.io/ipfs/${entry.avatarCid}` : undefined} />
                             <AvatarFallback>
-                              {entry.ensName?.[0]?.toUpperCase() || entry.address.slice(2, 4).toUpperCase()}
+                              {entry.username?.[0]?.toUpperCase() || entry.address.slice(2, 4).toUpperCase()}
                             </AvatarFallback>
                           </Avatar>
                           <div>
                             <div className="font-medium">
-                              {entry.ensName || `${entry.address.slice(0, 6)}...${entry.address.slice(-4)}`}
+                              {entry.username || `${entry.address.slice(0, 6)}...${entry.address.slice(-4)}`}
                             </div>
-                            {entry.ensName && (
+                            {entry.username && (
                               <div className="text-xs text-muted-foreground">
                                 {entry.address.slice(0, 6)}...{entry.address.slice(-4)}
                               </div>
@@ -164,10 +148,10 @@ export default function LeaderboardPage() {
                         <Badge variant="secondary">{entry.xp.toLocaleString()}</Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        {entry.questsCompleted}
+                        <Badge variant="outline">Level {entry.level}</Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        {getChangeIndicator(entry.change)}
+                        <Badge variant="secondary">{entry.gmStreak} days</Badge>
                       </TableCell>
                     </TableRow>
                   ))}
