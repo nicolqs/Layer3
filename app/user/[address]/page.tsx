@@ -15,6 +15,7 @@ import {
 } from "@/lib/transactionStats";
 import {
   AlchemyNFT,
+  DateRangeFilter,
   MultiChainTransaction,
   TokenBalance,
   User,
@@ -30,9 +31,7 @@ export default function UserDetailPage({
 }) {
   const { address } = use(params);
   const [selectedChain, setSelectedChain] = useState<number | "all">("all");
-  const [dateRange, setDateRange] = useState<"all" | "7d" | "30d" | "90d">(
-    "all"
-  );
+  const [dateRange, setDateRange] = useState<DateRangeFilter>("all");
 
   const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ["user", address],

@@ -1,4 +1,4 @@
-import { EtherscanTransaction } from './types';
+import { DateRangeFilter, EtherscanTransaction } from './types';
 import { formatUnits } from 'viem';
 
 export interface TransactionStats {
@@ -66,7 +66,7 @@ export function formatRelativeTime(timestamp: number): string {
 
 export function filterTransactionsByDateRange(
   transactions: EtherscanTransaction[],
-  range: 'all' | '7d' | '30d' | '90d'
+  range: DateRangeFilter
 ): EtherscanTransaction[] {
   if (range === 'all') return transactions;
   

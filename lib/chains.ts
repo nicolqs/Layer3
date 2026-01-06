@@ -119,6 +119,9 @@ export const CHAIN_EXPLORERS: Record<number, ChainConfig> = {
 
 export const SUPPORTED_CHAINS = Object.keys(CHAIN_EXPLORERS).map(Number).sort((a, b) => a - b);
 
+// Popular chains for quick filtering in UI (Ethereum, Polygon, Arbitrum, Optimism, Base, BNB)
+export const POPULAR_CHAINS = [1, 137, 42161, 10, 8453, 56] as const;
+
 // Helper to get chain info
 export function getChainInfo(chainId: number): ChainConfig | undefined {
   return CHAIN_EXPLORERS[chainId];

@@ -36,7 +36,7 @@ export interface Transaction {
   value: string;
   timestamp: number;
   chainId: number;
-  status: 'success' | 'failed';
+  status: "success" | "failed";
 }
 
 export interface EtherscanTransaction {
@@ -66,6 +66,9 @@ export interface MultiChainTransaction extends EtherscanTransaction {
   chainId: number;
   chainName: string;
 }
+
+export const DATE_RANGE_OPTIONS = ["all", "7d", "30d", "90d"] as const;
+export type DateRangeFilter = (typeof DATE_RANGE_OPTIONS)[number];
 
 export interface TransactionStats {
   totalTransactions: number;
@@ -149,4 +152,3 @@ export interface UserStats {
   firstTransaction?: number;
   lastTransaction?: number;
 }
-
