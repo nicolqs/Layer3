@@ -1,7 +1,48 @@
-import { EtherscanTransaction } from '@/lib/types';
+import { ChainApiClientFactory } from '@/lib/chainApiClients';
+import { MultiChainTransaction } from '@/lib/types';
 import { NextRequest, NextResponse } from 'next/server';
 import { isAddress } from 'viem';
 
+/**
+ * Fetch transactions for a specific chain
+ */
+async function fetchChainTransactions(
+  address: string,
+  chainId: number,
+  page: number = 1,
+  limit: number = 100
+): Promise<MultiChainTransaction[]> {
+  // Get the appropriate API client for this chain
+  const client = ChainApiClientFactory.getClient(chainId);
+  
+  if (!client) {
+    console.error(`Unsupported chainId: ${chainId}`);
+    return [];
+  }
+
+  try {
+    // Fetch transactions using the chain-specific client
+    const transactions = await client.fetchTransactions(address, page, limit);
+
+    // Add chain metadata to each transaction
+    return transactions.map((tx) => ({
+      ...tx,
+      chainId: client.getChainId(),
+      chainName: client.getChainName(),
+    }));
+  } catch (error) {
+    console.error(
+      `Error fetching transactions for ${client.getChainName()}:`,
+      error
+    );
+    return [];
+  }
+}
+
+/**
+ * API Route Handler
+ * GET /api/user/[address]/transactions?chainId=1&page=1&limit=50
+ */
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ address: string }> }
@@ -9,38 +50,75 @@ export async function GET(
   try {
     const { address } = await params;
     const searchParams = request.nextUrl.searchParams;
-    
-    // Get query parameters for pagination
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '100');
 
+    // Parse query parameters
+    const chainIdParam = searchParams.get('chainId');
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const limit = parseInt(searchParams.get('limit') || '50', 10);
+
+    // Validate address
     if (!isAddress(address)) {
       return NextResponse.json(
-        { error: 'Invalid address' },
+        { error: 'Invalid Ethereum address' },
         { status: 400 }
       );
     }
 
-    // Calculate offset for pagination
-    const startBlock = 0;
-    const endBlock = 99999999;
-    
-    // Use Etherscan V2 API (requires chainid parameter)
-    // Etherscan API supports pagination: page (page number) & offset (records per page)
-    const etherscanUrl = `https://api.etherscan.io/v2/api?chainid=1&module=account&action=txlist&address=${address}&startblock=${startBlock}&endblock=${endBlock}&page=${page}&offset=${limit}&sort=desc&apikey=${process.env.ETHERSCAN_API_KEY}`;
-    
-    const response = await fetch(etherscanUrl);
-    const data = await response.json();
-
-    // Check if Etherscan returned an error
-    if (data.status === "0" || !Array.isArray(data.result)) {
-      console.error('Etherscan API error:', data.message, data.result);
-      return NextResponse.json([]);
+    // Validate pagination parameters
+    if (page < 1 || limit < 1 || limit > 10000) {
+      return NextResponse.json(
+        { error: 'Invalid pagination parameters' },
+        { status: 400 }
+      );
     }
 
-    const transactions: EtherscanTransaction[] = data.result;
+    let allTransactions: MultiChainTransaction[];
 
-    return NextResponse.json(transactions);
+    if (chainIdParam) {
+      // Single chain request
+      const chainId = parseInt(chainIdParam, 10);
+      
+      if (!ChainApiClientFactory.getClient(chainId)) {
+        return NextResponse.json(
+          { 
+            error: 'Unsupported chain',
+            supportedChains: ChainApiClientFactory.getSupportedChainIds()
+          },
+          { status: 400 }
+        );
+      }
+
+      allTransactions = await fetchChainTransactions(
+        address,
+        chainId,
+        page,
+        limit
+      );
+    } else {
+      // Multi-chain request - fetch all supported chains in parallel
+      const supportedChains = ChainApiClientFactory.getSupportedChainIds();
+      
+      const results = await Promise.allSettled(
+        supportedChains.map((chainId) =>
+          fetchChainTransactions(address, chainId, 1, limit)
+        )
+      );
+
+      // Extract successful results
+      allTransactions = results
+        .filter((result) => result.status === 'fulfilled')
+        .flatMap((result) => (result as PromiseFulfilledResult<MultiChainTransaction[]>).value);
+
+      // Sort by timestamp (newest first)
+      allTransactions.sort(
+        (a, b) => parseInt(b.timeStamp) - parseInt(a.timeStamp)
+      );
+
+      // Apply limit after merging all chains
+      allTransactions = allTransactions.slice(0, limit * 2);
+    }
+
+    return NextResponse.json(allTransactions);
   } catch (error) {
     console.error('Transactions API error:', error);
     return NextResponse.json(
@@ -49,4 +127,3 @@ export async function GET(
     );
   }
 }
-

@@ -62,6 +62,18 @@ export interface EtherscanTransaction {
   functionName: string;
 }
 
+export interface MultiChainTransaction extends EtherscanTransaction {
+  chainId: number;
+  chainName: string;
+}
+
+export interface TransactionStats {
+  totalTransactions: number;
+  totalVolume: string;
+  successRate: number;
+  totalGasFees: string;
+}
+
 export interface TokenBalance {
   symbol: string;
   name: string;
