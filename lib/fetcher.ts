@@ -16,7 +16,7 @@ export async function fetcher<T>(
   const res = await fetch(url, {
     ...options,
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...options?.headers,
     },
   });
@@ -37,7 +37,6 @@ export function buildQueryString(params: Record<string, any>): string {
   const filtered = Object.entries(params).filter(
     ([_, value]) => value !== undefined && value !== null
   );
-  if (filtered.length === 0) return '';
-  return '?' + new URLSearchParams(filtered as any).toString();
+  if (filtered.length === 0) return "";
+  return "?" + new URLSearchParams(filtered as any).toString();
 }
-
