@@ -64,6 +64,14 @@ export default function UserDetailPage({ params }: { params: Promise<{ address: 
     return calculateTransactionStats(transactions);
   }, [transactions]);
 
+  // Memoize total balance calculation
+  const totalBalance = useMemo(() => {
+    return balances?.reduce((acc, bal) => {
+      const value = parseFloat(bal.balance) * (bal.price || 0);
+      return acc + (isNaN(value) ? 0 : value);
+    }, 0) || 0;
+  }, [balances]);
+
   if (userLoading) {
     return (
       <div className="min-h-screen bg-background p-8">
@@ -89,11 +97,6 @@ export default function UserDetailPage({ params }: { params: Promise<{ address: 
       </div>
     );
   }
-
-  const totalBalance = balances?.reduce((acc, bal) => {
-    const value = parseFloat(bal.balance) * (bal.price || 0);
-    return acc + (isNaN(value) ? 0 : value);
-  }, 0) || 0;
 
   return (
     <div className="min-h-screen bg-background p-8">
@@ -253,13 +256,13 @@ export default function UserDetailPage({ params }: { params: Promise<{ address: 
               balanceView === 'cards' ? (
                 // Card View
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {balances.map((balance, i) => {
+                {balances.map((balance) => {
                   const chainInfo = getChainInfo(balance.chainId);
                   const tokenLogo = getTokenLogo(balance.symbol);
 
                   return (
                     <Card 
-                      key={i}
+                      key={`${balance.symbol}-${balance.chainId}`}
                       className="group relative overflow-hidden border-border/50 bg-card/50 backdrop-blur transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:border-primary/50"
                     >
                       {/* Gradient overlay on hover */}
@@ -271,6 +274,7 @@ export default function UserDetailPage({ params }: { params: Promise<{ address: 
                           <div className="relative">
                             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center ring-2 ring-border/50 group-hover:ring-primary/30 transition-all">
                               <img 
+                                loading="lazy"
                                 src={tokenLogo} 
                                 alt={balance.symbol}
                                 className="w-8 h-8 object-contain"
@@ -280,13 +284,14 @@ export default function UserDetailPage({ params }: { params: Promise<{ address: 
                               />
                             </div>
                             {/* Chain badge overlay */}
-                            {chainInfo && (
-                              <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-background border-2 border-border/50 flex items-center justify-center">
-                                <img 
-                                  src={chainInfo.logo} 
-                                  alt={chainInfo.name}
-                                  className="w-3 h-3 rounded-full object-cover"
-                                />
+                              {chainInfo && (
+                                <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-background border-2 border-border/50 flex items-center justify-center">
+                                  <img 
+                                    loading="lazy"
+                                    src={chainInfo.logo} 
+                                    alt={chainInfo.name}
+                                    className="w-3 h-3 rounded-full object-cover"
+                                  />
                               </div>
                             )}
                           </div>
@@ -341,13 +346,13 @@ export default function UserDetailPage({ params }: { params: Promise<{ address: 
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {balances.map((balance, i) => {
+                          {balances.map((balance) => {
                             const chainInfo = getChainInfo(balance.chainId);
                             const tokenLogo = getTokenLogo(balance.symbol);
 
                             return (
                               <TableRow 
-                                key={i}
+                                key={`${balance.symbol}-${balance.chainId}`}
                                 className="transition-colors hover:bg-muted/30"
                               >
                                 {/* Asset Column */}
@@ -357,6 +362,7 @@ export default function UserDetailPage({ params }: { params: Promise<{ address: 
                                     <div className="relative flex-shrink-0">
                                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center ring-2 ring-border/50">
                                         <img 
+                                          loading="lazy"
                                           src={tokenLogo} 
                                           alt={balance.symbol}
                                           className="w-6 h-6 object-contain"
@@ -369,6 +375,7 @@ export default function UserDetailPage({ params }: { params: Promise<{ address: 
                                       {chainInfo && (
                                         <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-background border border-border/50 flex items-center justify-center">
                                           <img 
+                                            loading="lazy"
                                             src={chainInfo.logo} 
                                             alt={chainInfo.name}
                                             className="w-2.5 h-2.5 rounded-full object-cover"
@@ -396,6 +403,7 @@ export default function UserDetailPage({ params }: { params: Promise<{ address: 
                                   {chainInfo && (
                                     <div className="flex items-center gap-2">
                                       <img 
+                                        loading="lazy"
                                         src={chainInfo.logo} 
                                         alt={chainInfo.name}
                                         className="w-5 h-5 rounded-full object-cover"

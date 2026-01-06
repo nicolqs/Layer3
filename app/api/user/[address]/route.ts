@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { User } from '@/lib/types';
+import { NextRequest, NextResponse } from 'next/server';
 import { isAddress } from 'viem';
 
 const generateMockUser = (address: string): User => {

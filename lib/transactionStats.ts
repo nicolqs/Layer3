@@ -1,4 +1,5 @@
 import { EtherscanTransaction } from './types';
+import { formatUnits } from 'viem';
 
 export interface TransactionStats {
   totalTransactions: number;
@@ -35,11 +36,15 @@ export function calculateTransactionStats(
     }
   }
 
+  // Use formatUnits for precise BigInt to decimal conversion
+  const volumeStr = formatUnits(totalVolume, 18);
+  const gasStr = formatUnits(totalGas, 18);
+
   return {
     totalTransactions: transactions.length,
-    totalVolume: (Number(totalVolume) / 1e18).toFixed(4),
+    totalVolume: parseFloat(volumeStr).toFixed(4),
     successRate: Math.round((successCount / transactions.length) * 100),
-    totalGasFees: (Number(totalGas) / 1e18).toFixed(6),
+    totalGasFees: parseFloat(gasStr).toFixed(6),
   };
 }
 
