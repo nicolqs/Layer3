@@ -1,17 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getChainClient, chains } from '@/lib/viem';
+import { ERC20_ABI, POPULAR_TOKENS } from '@/lib/tokens';
 import { TokenBalance } from '@/lib/types';
-import { formatEther } from 'viem';
-
-const POPULAR_TOKENS: Record<number, Array<{ address: `0x${string}`; symbol: string; name: string; decimals: number }>> = {
-  1: [ // Ethereum
-    { address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', symbol: 'USDC', name: 'USD Coin', decimals: 6 },
-    { address: '0xdAC17F958D2ee523a2206206994597C13D831ec7', symbol: 'USDT', name: 'Tether', decimals: 6 },
-  ],
-  137: [ // Polygon
-    { address: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174', symbol: 'USDC', name: 'USD Coin', decimals: 6 },
-  ],
-};
+import { chains, getChainClient } from '@/lib/viem';
+import { NextRequest, NextResponse } from 'next/server';
+import { formatUnits, isAddress } from 'viem';
 
 export async function GET(
   request: NextRequest,
@@ -20,7 +11,7 @@ export async function GET(
   try {
     const { address } = await params;
 
-    if (!address || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
+    if (!isAddress(address)) {
       return NextResponse.json(
         { error: 'Invalid address' },
         { status: 400 }
@@ -29,33 +20,60 @@ export async function GET(
 
     const balances: TokenBalance[] = [];
 
-    // Fetch native balances for all chains
+    // Fetch native and ERC20 balances for all chains
     await Promise.all(
       chains.map(async (chain) => {
         try {
           const client = getChainClient(chain.id);
-          const balance = await client.getBalance({
+          
+          // Fetch native balance
+          const nativeBalance = await client.getBalance({
             address: address as `0x${string}`,
           });
 
-          if (balance > 0n) {
+          if (nativeBalance > BigInt(0)) {
             balances.push({
               symbol: chain.nativeCurrency.symbol,
               name: chain.nativeCurrency.name,
-              balance: formatEther(balance),
+              balance: formatUnits(nativeBalance, chain.nativeCurrency.decimals),
               decimals: chain.nativeCurrency.decimals,
               chainId: chain.id,
-              logo: `/chains/${chain.id}.png`,
             });
           }
+
+          // Fetch ERC20 token balances for this chain
+          const tokens = POPULAR_TOKENS[chain.id] || [];
+          
+          await Promise.all(
+            tokens.map(async (token) => {
+              try {
+                const balance = await client.readContract({
+                  address: token.address,
+                  abi: ERC20_ABI,
+                  functionName: 'balanceOf',
+                  args: [address as `0x${string}`],
+                }) as bigint;
+
+                if (balance > BigInt(0)) {
+                  balances.push({
+                    symbol: token.symbol,
+                    name: token.name,
+                    balance: formatUnits(balance, token.decimals),
+                    decimals: token.decimals,
+                    chainId: chain.id,
+                  });
+                }
+              } catch (error) {
+                // Silently fail for individual tokens
+                console.error(`Error fetching ${token.symbol} balance on chain ${chain.id}:`, error);
+              }
+            })
+          );
         } catch (error) {
-          console.error(`Error fetching balance for chain ${chain.id}:`, error);
+          console.error(`Error fetching balances for chain ${chain.id}:`, error);
         }
       })
     );
-
-    // TODO: Fetch ERC20 token balances using Alchemy or similar
-    // For now, just return native balances
 
     return NextResponse.json(balances);
   } catch (error) {

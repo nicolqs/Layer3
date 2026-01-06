@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { User } from '@/lib/types';
+import { isAddress } from 'viem';
 
 const generateMockUser = (address: string): User => {
   const seed = parseInt(address.slice(2, 10), 16);
@@ -22,7 +23,7 @@ export async function GET(
   try {
     const { address } = await params;
 
-    if (!address || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
+    if (!isAddress(address)) {
       return NextResponse.json(
         { error: 'Invalid address' },
         { status: 400 }

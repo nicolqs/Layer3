@@ -1,5 +1,6 @@
 import { AlchemyNFT } from '@/lib/types';
 import { NextResponse } from 'next/server';
+import { isAddress } from 'viem';
 
 export async function GET(
   _request: Request,
@@ -8,7 +9,7 @@ export async function GET(
   try {
     const { address } = await params;
 
-    if (!address || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
+    if (!isAddress(address)) {
       return NextResponse.json(
         { error: 'Invalid address' },
         { status: 400 }

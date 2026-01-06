@@ -1,28 +1,34 @@
 import { EtherscanTransaction } from '@/lib/types';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { isAddress } from 'viem';
 
 export async function GET(
-  _request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ address: string }> }
 ) {
   try {
     const { address } = await params;
+    const searchParams = request.nextUrl.searchParams;
+    
+    // Get query parameters for pagination
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '100');
 
-    if (!address || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
+    if (!isAddress(address)) {
       return NextResponse.json(
         { error: 'Invalid address' },
         { status: 400 }
       );
     }
 
-    // TODO: Replace with actual Etherscan API calls for each chain
-    // Use Etherscan API for Ethereum
-    // Use Polygonscan API for Polygon
-    // Use Arbiscan API for Arbitrum
-    // etc.
-
+    // Calculate offset for pagination
+    const startBlock = 0;
+    const endBlock = 99999999;
+    
     // Use Etherscan V2 API (requires chainid parameter)
-    const etherscanUrl = `https://api.etherscan.io/v2/api?chainid=1&module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&sort=desc&apikey=${process.env.ETHERSCAN_API_KEY}`;
+    // Etherscan API supports pagination: page (page number) & offset (records per page)
+    const etherscanUrl = `https://api.etherscan.io/v2/api?chainid=1&module=account&action=txlist&address=${address}&startblock=${startBlock}&endblock=${endBlock}&page=${page}&offset=${limit}&sort=desc&apikey=${process.env.ETHERSCAN_API_KEY}`;
+    
     const response = await fetch(etherscanUrl);
     const data = await response.json();
 
@@ -33,9 +39,6 @@ export async function GET(
     }
 
     const transactions: EtherscanTransaction[] = data.result;
-
-    // Note: chainId filter doesn't apply here as we're only fetching from Ethereum mainnet (chainid=1)
-    // If you need multi-chain support, you'd need separate API calls per chain
 
     return NextResponse.json(transactions);
   } catch (error) {
