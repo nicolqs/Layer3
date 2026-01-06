@@ -16,6 +16,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Layer3 Leaderboard",
   description: "Track top performers in the Layer3 ecosystem",
+  icons: {
+    icon: '/favicon.ico',
+  },
 };
 
 export default function RootLayout({
@@ -25,6 +28,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://cryptologos.cc" />
+        <link rel="preconnect" href="https://icons.llamao.fi" />
+        <link rel="dns-prefetch" href="https://ipfs.io" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

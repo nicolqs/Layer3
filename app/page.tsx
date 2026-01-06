@@ -36,15 +36,23 @@ export default function LeaderboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="min-h-screen bg-background p-4 sm:p-8">
+      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
         {/* Header */}
-        <div className="flex items-start justify-between">
-          <div className="space-y-2">
-            <h1 className="text-4xl font-bold tracking-tight">Layer3 Leaderboard</h1>
-            <p className="text-muted-foreground">
-              Top performers in the Layer3 ecosystem
-            </p>
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+            <img src="/layer3-logo.svg" alt="Layer3" className="h-6 sm:h-8 w-auto dark:invert-0 invert flex-shrink-0" />
+            <div className="space-y-0.5 sm:space-y-1 min-w-0">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                Leaderboard
+              </h1>
+              <p className="text-xs sm:text-sm bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent font-medium hidden sm:block">
+                Top performers in the Layer3 ecosystem
+              </p>
+              <p className="text-xs bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent font-medium sm:hidden">
+                Top performers
+              </p>
+            </div>
           </div>
           <ThemeToggle />
         </div>
@@ -83,22 +91,24 @@ export default function LeaderboardPage() {
 
         {/* Leaderboard Table */}
         <Card>
-          <CardHeader>
-            <CardTitle>Rankings</CardTitle>
-            <CardDescription>
-              Track the top performers and their progress
-            </CardDescription>
-            <div className="relative pt-4">
-              <Search className="absolute left-3 top-7 h-4 w-4 text-muted-foreground" />
+          <CardHeader className="space-y-3 sm:space-y-4">
+            <div>
+              <CardTitle className="text-lg sm:text-xl">Rankings</CardTitle>
+              <CardDescription className="text-xs sm:text-sm">
+                Track the top performers and their progress
+              </CardDescription>
+            </div>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search by address or ENS..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
+                className="pl-9 text-sm sm:text-base"
               />
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0 sm:p-6">
             {isLoading ? (
               <div className="space-y-3">
                 {Array.from({ length: 10 }).map((_, i) => (
@@ -106,57 +116,59 @@ export default function LeaderboardPage() {
                 ))}
               </div>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-16">Rank</TableHead>
-                    <TableHead>User</TableHead>
-                    <TableHead className="text-right">XP</TableHead>
-                    <TableHead className="text-right">Level</TableHead>
-                    <TableHead className="text-right">GM Streak</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredLeaderboard.map((entry) => (
-                    <TableRow key={entry.address} className="cursor-pointer hover:bg-muted/50">
-                      <TableCell>
-                        <div className="flex items-center justify-center">
-                          {getRankBadge(entry.rank)}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Link href={`/user/${entry.address}`} className="flex items-center gap-3 hover:underline">
-                          <Avatar>
-                            <AvatarImage src={entry.avatarCid ? `https://ipfs.io/ipfs/${entry.avatarCid}` : undefined} />
-                            <AvatarFallback>
-                              {entry.username?.[0]?.toUpperCase() || entry.address.slice(2, 4).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className="font-medium">
-                              {entry.username || `${entry.address.slice(0, 6)}...${entry.address.slice(-4)}`}
-                            </div>
-                            {entry.username && (
-                              <div className="text-xs text-muted-foreground">
-                                {entry.address.slice(0, 6)}...{entry.address.slice(-4)}
-                              </div>
-                            )}
-                          </div>
-                        </Link>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Badge variant="secondary">{entry.xp.toLocaleString()}</Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Badge variant="outline">Level {entry.level}</Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Badge variant="secondary">{entry.gmStreak} days</Badge>
-                      </TableCell>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-12 sm:w-16 text-xs sm:text-sm">Rank</TableHead>
+                      <TableHead className="text-xs sm:text-sm">User</TableHead>
+                      <TableHead className="text-right text-xs sm:text-sm">XP</TableHead>
+                      <TableHead className="text-right text-xs sm:text-sm hidden sm:table-cell">Level</TableHead>
+                      <TableHead className="text-right text-xs sm:text-sm hidden md:table-cell">GM Streak</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredLeaderboard.map((entry) => (
+                      <TableRow key={entry.address} className="cursor-pointer hover:bg-muted/50">
+                        <TableCell className="py-3 sm:py-4">
+                          <div className="flex items-center justify-center">
+                            {getRankBadge(entry.rank)}
+                          </div>
+                        </TableCell>
+                        <TableCell className="py-3 sm:py-4">
+                          <Link href={`/user/${entry.address}`} className="flex items-center gap-2 sm:gap-3 hover:underline">
+                            <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
+                              <AvatarImage src={entry.avatarCid ? `https://ipfs.io/ipfs/${entry.avatarCid}` : undefined} />
+                              <AvatarFallback className="text-xs sm:text-sm">
+                                {entry.username?.[0]?.toUpperCase() || entry.address.slice(2, 4).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="min-w-0">
+                              <div className="font-medium text-sm sm:text-base truncate">
+                                {entry.username || `${entry.address.slice(0, 6)}...${entry.address.slice(-4)}`}
+                              </div>
+                              {entry.username && (
+                                <div className="text-xs text-muted-foreground hidden sm:block">
+                                  {entry.address.slice(0, 6)}...{entry.address.slice(-4)}
+                                </div>
+                              )}
+                            </div>
+                          </Link>
+                        </TableCell>
+                        <TableCell className="text-right py-3 sm:py-4">
+                          <Badge variant="secondary" className="text-xs sm:text-sm">{entry.xp.toLocaleString()}</Badge>
+                        </TableCell>
+                        <TableCell className="text-right py-3 sm:py-4 hidden sm:table-cell">
+                          <Badge variant="outline" className="text-xs sm:text-sm">Level {entry.level}</Badge>
+                        </TableCell>
+                        <TableCell className="text-right py-3 sm:py-4 hidden md:table-cell">
+                          <Badge variant="secondary" className="text-xs sm:text-sm">{entry.gmStreak} days</Badge>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             )}
           </CardContent>
         </Card>
