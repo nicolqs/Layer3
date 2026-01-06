@@ -1,6 +1,6 @@
 /**
  * Chain API Clients - Following SOLID Principles
- * 
+ *
  * Single Responsibility: Each client handles one chain's API
  * Open/Closed: Easy to add new chains without modifying existing code
  * Liskov Substitution: All clients implement the same interface
@@ -8,7 +8,7 @@
  * Dependency Inversion: Depend on abstractions (IChainApiClient)
  */
 
-import { EtherscanTransaction } from './types';
+import { EtherscanTransaction } from "./types";
 
 // ============================================================================
 // Interface (Abstraction) - Dependency Inversion Principle
@@ -54,9 +54,7 @@ abstract class BaseEtherscanClient implements IChainApiClient {
 
       // Validate response
       if (!this.isValidJsonResponse(response)) {
-        console.error(
-          `[${this.chainName}] Invalid response content-type`
-        );
+        console.error(`[${this.chainName}] Invalid response content-type`);
         return [];
       }
 
@@ -94,15 +92,19 @@ abstract class BaseEtherscanClient implements IChainApiClient {
     const apiKey = this.getApiKey();
     const params = new URLSearchParams({
       chainid: this.chainId.toString(),
-      module: 'account',
-      action: 'txlist',
+      module: "account",
+      action: "txlist",
       address: address,
       page: page.toString(),
       offset: limit.toString(),
-      sort: 'desc',
+      sort: "desc",
       apikey: apiKey,
     });
 
+    console.log(
+      "params",
+      `https://api.etherscan.io/v2/api?${params.toString()}`
+    );
     return `https://api.etherscan.io/v2/api?${params.toString()}`;
   }
 
@@ -111,17 +113,17 @@ abstract class BaseEtherscanClient implements IChainApiClient {
    * All Etherscan-family APIs use the same key
    */
   protected getApiKey(): string {
-    return process.env.ETHERSCAN_API_KEY || '';
+    return process.env.ETHERSCAN_API_KEY || "";
   }
 
   protected isValidJsonResponse(response: Response): boolean {
-    const contentType = response.headers.get('content-type');
-    return contentType ? contentType.includes('application/json') : false;
+    const contentType = response.headers.get("content-type");
+    return contentType ? contentType.includes("application/json") : false;
   }
 
   protected isErrorResponse(data: unknown): boolean {
     const apiResponse = data as { status?: string; result?: unknown };
-    return apiResponse.status === '0' || !Array.isArray(apiResponse.result);
+    return apiResponse.status === "0" || !Array.isArray(apiResponse.result);
   }
 
   protected transformResponse(data: unknown): EtherscanTransaction[] {
@@ -141,7 +143,7 @@ abstract class BaseEtherscanClient implements IChainApiClient {
  */
 export class EthereumApiClient extends BaseEtherscanClient {
   protected chainId = 1;
-  protected chainName = 'Ethereum';
+  protected chainName = "Ethereum";
 }
 
 /**
@@ -150,7 +152,7 @@ export class EthereumApiClient extends BaseEtherscanClient {
  */
 export class ArbitrumApiClient extends BaseEtherscanClient {
   protected chainId = 42161;
-  protected chainName = 'Arbitrum';
+  protected chainName = "Arbitrum";
 }
 
 /**
@@ -159,7 +161,7 @@ export class ArbitrumApiClient extends BaseEtherscanClient {
  */
 export class OptimismApiClient extends BaseEtherscanClient {
   protected chainId = 10;
-  protected chainName = 'Optimism';
+  protected chainName = "Optimism";
 }
 
 /**
@@ -168,7 +170,7 @@ export class OptimismApiClient extends BaseEtherscanClient {
  */
 export class BaseApiClient extends BaseEtherscanClient {
   protected chainId = 8453;
-  protected chainName = 'Base';
+  protected chainName = "Base";
 }
 
 /**
@@ -177,7 +179,7 @@ export class BaseApiClient extends BaseEtherscanClient {
  */
 export class PolygonApiClient extends BaseEtherscanClient {
   protected chainId = 137;
-  protected chainName = 'Polygon';
+  protected chainName = "Polygon";
 }
 
 /**
@@ -186,7 +188,7 @@ export class PolygonApiClient extends BaseEtherscanClient {
  */
 export class AvalancheApiClient extends BaseEtherscanClient {
   protected chainId = 43114;
-  protected chainName = 'Avalanche';
+  protected chainName = "Avalanche";
 }
 
 /**
@@ -195,7 +197,7 @@ export class AvalancheApiClient extends BaseEtherscanClient {
  */
 export class BNBApiClient extends BaseEtherscanClient {
   protected chainId = 56;
-  protected chainName = 'BNB Chain';
+  protected chainName = "BNB Chain";
 }
 
 /**
@@ -204,7 +206,7 @@ export class BNBApiClient extends BaseEtherscanClient {
  */
 export class GnosisApiClient extends BaseEtherscanClient {
   protected chainId = 100;
-  protected chainName = 'Gnosis';
+  protected chainName = "Gnosis";
 }
 
 /**
@@ -213,7 +215,7 @@ export class GnosisApiClient extends BaseEtherscanClient {
  */
 export class CeloApiClient extends BaseEtherscanClient {
   protected chainId = 42220;
-  protected chainName = 'Celo';
+  protected chainName = "Celo";
 }
 
 /**
@@ -222,7 +224,7 @@ export class CeloApiClient extends BaseEtherscanClient {
  */
 export class MoonbeamApiClient extends BaseEtherscanClient {
   protected chainId = 1284;
-  protected chainName = 'Moonbeam';
+  protected chainName = "Moonbeam";
 }
 
 /**
@@ -231,7 +233,7 @@ export class MoonbeamApiClient extends BaseEtherscanClient {
  */
 export class MantleApiClient extends BaseEtherscanClient {
   protected chainId = 5000;
-  protected chainName = 'Mantle';
+  protected chainName = "Mantle";
 }
 
 /**
@@ -240,7 +242,7 @@ export class MantleApiClient extends BaseEtherscanClient {
  */
 export class LineaApiClient extends BaseEtherscanClient {
   protected chainId = 59144;
-  protected chainName = 'Linea';
+  protected chainName = "Linea";
 }
 
 /**
@@ -249,7 +251,7 @@ export class LineaApiClient extends BaseEtherscanClient {
  */
 export class ScrollApiClient extends BaseEtherscanClient {
   protected chainId = 534352;
-  protected chainName = 'Scroll';
+  protected chainName = "Scroll";
 }
 
 /**
@@ -258,7 +260,7 @@ export class ScrollApiClient extends BaseEtherscanClient {
  */
 export class zkSyncApiClient extends BaseEtherscanClient {
   protected chainId = 324;
-  protected chainName = 'zkSync Era';
+  protected chainName = "zkSync Era";
 }
 
 /**
@@ -267,7 +269,7 @@ export class zkSyncApiClient extends BaseEtherscanClient {
  */
 export class XDCApiClient extends BaseEtherscanClient {
   protected chainId = 50;
-  protected chainName = 'XDC Network';
+  protected chainName = "XDC Network";
 }
 
 // ============================================================================
@@ -279,7 +281,10 @@ export class XDCApiClient extends BaseEtherscanClient {
  * Following Open/Closed Principle: Open for extension, closed for modification
  */
 export class ChainApiClientFactory {
-  private static clients: Map<number, IChainApiClient> = new Map<number, IChainApiClient>([
+  private static clients: Map<number, IChainApiClient> = new Map<
+    number,
+    IChainApiClient
+  >([
     [1, new EthereumApiClient()],
     [10, new OptimismApiClient()],
     [56, new BNBApiClient()],
@@ -325,4 +330,3 @@ export class ChainApiClientFactory {
     this.clients.set(chainId, client);
   }
 }
-

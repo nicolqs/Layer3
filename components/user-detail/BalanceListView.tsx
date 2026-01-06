@@ -3,12 +3,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { getChainInfo } from '@/lib/chains';
 import { getTokenLogo } from '@/lib/tokens';
 import { TokenBalance } from '@/lib/types';
+import { PriceDisplayMode, getDisplayValue } from '@/lib/priceUtils';
 
 interface BalanceListViewProps {
   balances: TokenBalance[];
+  priceMode: PriceDisplayMode;
 }
 
-export function BalanceListView({ balances }: BalanceListViewProps) {
+export function BalanceListView({ balances, priceMode }: BalanceListViewProps) {
   return (
     <Card className="border-border/50">
       <CardContent className="p-0">
@@ -25,6 +27,7 @@ export function BalanceListView({ balances }: BalanceListViewProps) {
               {balances.map((balance) => {
                 const chainInfo = getChainInfo(balance.chainId);
                 const tokenLogo = getTokenLogo(balance.symbol);
+                const displayValue = getDisplayValue(balance, priceMode);
 
                 return (
                   <TableRow 
@@ -95,11 +98,11 @@ export function BalanceListView({ balances }: BalanceListViewProps) {
                     <TableCell className="text-right py-3 sm:py-4">
                       <div className="flex flex-col items-end">
                         <span className="font-semibold text-sm sm:text-base tabular-nums">
-                          {parseFloat(balance.balance).toFixed(4)}
+                          {displayValue.primary}
                         </span>
-                        {balance.value && (
+                        {displayValue.secondary && (
                           <span className="text-[10px] sm:text-xs text-muted-foreground">
-                            ≈ ${balance.value.toFixed(2)}
+                            ≈ {displayValue.secondary}
                           </span>
                         )}
                       </div>

@@ -3,17 +3,20 @@ import { Card, CardContent } from '@/components/ui/card';
 import { getChainInfo } from '@/lib/chains';
 import { getTokenLogo } from '@/lib/tokens';
 import { TokenBalance } from '@/lib/types';
+import { PriceDisplayMode, getDisplayValue } from '@/lib/priceUtils';
 
 interface BalanceCardViewProps {
   balances: TokenBalance[];
+  priceMode: PriceDisplayMode;
 }
 
-export function BalanceCardView({ balances }: BalanceCardViewProps) {
+export function BalanceCardView({ balances, priceMode }: BalanceCardViewProps) {
   return (
     <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
       {balances.map((balance) => {
         const chainInfo = getChainInfo(balance.chainId);
         const tokenLogo = getTokenLogo(balance.symbol);
+        const displayValue = getDisplayValue(balance, priceMode);
 
         return (
           <Card 
@@ -54,26 +57,20 @@ export function BalanceCardView({ balances }: BalanceCardViewProps) {
               </div>
 
               <div className="space-y-0.5 sm:space-y-1">
-                <div className="flex items-baseline gap-1.5 sm:gap-2">
-                  <h3 className="text-xl sm:text-2xl font-bold tracking-tight">
-                    {parseFloat(balance.balance).toFixed(4)}
+                <div className="flex flex-col gap-0.5">
+                  <h3 className="text-lg sm:text-xl font-bold tracking-tight">
+                    {displayValue.primary}
                   </h3>
-                  <span className="text-xs sm:text-sm font-medium text-muted-foreground">
-                    {balance.symbol}
-                  </span>
+                  {displayValue.secondary && (
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      ≈ {displayValue.secondary}
+                    </p>
+                  )}
                 </div>
                 <p className="text-xs sm:text-sm text-muted-foreground truncate">
                   {balance.name}
                 </p>
               </div>
-
-              {balance.value && (
-                <div className="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-border/50">
-                  <p className="text-[10px] sm:text-xs text-muted-foreground">
-                    ≈ ${balance.value.toFixed(2)} USD
-                  </p>
-                </div>
-              )}
             </CardContent>
           </Card>
         );

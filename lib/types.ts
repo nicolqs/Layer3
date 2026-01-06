@@ -1,10 +1,10 @@
 export interface User {
   address: string;
-  ensName?: string;
+  username?: string;
   avatar?: string;
   totalXP: number;
   rank: number;
-  questsCompleted: number;
+  gmStreak: number;
   nftCount: number;
   joinedAt?: string;
 }
@@ -15,7 +15,7 @@ export interface LeaderboardEntry {
   ensName?: string;
   avatar?: string;
   xp: number;
-  questsCompleted: number;
+  gmStreak: number;
   change?: number; // rank change
 }
 

@@ -7,7 +7,6 @@ import { NFTsTab } from "@/components/user-detail/NFTsTab";
 import { TransactionsTab } from "@/components/user-detail/TransactionsTab";
 import { UserDetailHeader } from "@/components/user-detail/UserDetailHeader";
 import { UserProfileCard } from "@/components/user-detail/UserProfileCard";
-import { UserStatsGrid } from "@/components/user-detail/UserStatsGrid";
 import { fetcher } from "@/lib/fetcher";
 import {
   calculateTransactionStats,
@@ -104,10 +103,6 @@ export default function UserDetailPage({
       <div className="max-w-7xl mx-auto space-y-4 sm:space-y-8">
         <UserDetailHeader />
         <UserProfileCard user={user} />
-        <UserStatsGrid
-          user={user}
-          transactionCount={transactions?.length || 0}
-        />
 
         <Tabs defaultValue="balances" className="space-y-4">
           <TabsList className="grid w-full grid-cols-3 sm:w-auto sm:inline-flex">
