@@ -57,7 +57,7 @@ export default function UserDetailPage({
     if (!allTransactions) return [];
     return filterTransactionsByDateRange(
       allTransactions,
-      dateRange
+      dateRange,
     ) as MultiChainTransaction[];
   }, [allTransactions, dateRange]);
 

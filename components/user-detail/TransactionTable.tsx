@@ -1,10 +1,17 @@
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { CHAIN_EXPLORERS } from '@/lib/chains';
-import { formatRelativeTime } from '@/lib/transactionStats';
-import { MultiChainTransaction } from '@/lib/types';
-import { Activity, CheckCircle, ExternalLink, XCircle } from 'lucide-react';
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { CHAIN_EXPLORERS } from "@/lib/chains";
+import { formatRelativeTime } from "@/lib/transactionStats";
+import { MultiChainTransaction } from "@/lib/types";
+import { Activity, CheckCircle, ExternalLink, XCircle } from "lucide-react";
 
 interface TransactionTableProps {
   transactions: MultiChainTransaction[];
@@ -12,7 +19,11 @@ interface TransactionTableProps {
   isLoading: boolean;
 }
 
-export function TransactionTable({ transactions, address, isLoading }: TransactionTableProps) {
+export function TransactionTable({
+  transactions,
+  address,
+  isLoading,
+}: TransactionTableProps) {
   if (isLoading) {
     return (
       <div className="space-y-2 sm:space-y-3">
@@ -28,7 +39,9 @@ export function TransactionTable({ transactions, address, isLoading }: Transacti
       <div className="text-center py-12 text-muted-foreground">
         <Activity className="h-12 w-12 mx-auto mb-4 opacity-20" />
         <p className="text-lg font-medium">No transactions found</p>
-        <p className="text-sm mt-1">Try selecting a different chain or date range</p>
+        <p className="text-sm mt-1">
+          Try selecting a different chain or date range
+        </p>
       </div>
     );
   }
@@ -39,22 +52,32 @@ export function TransactionTable({ transactions, address, isLoading }: Transacti
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/50">
-              <TableHead className="w-[80px] sm:w-[100px] text-xs sm:text-sm">Chain</TableHead>
+              <TableHead className="w-[80px] sm:w-[100px] text-xs sm:text-sm">
+                Chain
+              </TableHead>
               <TableHead className="text-xs sm:text-sm">Hash</TableHead>
-              <TableHead className="text-xs sm:text-sm hidden sm:table-cell">Type</TableHead>
-              <TableHead className="text-xs sm:text-sm hidden md:table-cell">Status</TableHead>
-              <TableHead className="text-right text-xs sm:text-sm">Value</TableHead>
-              <TableHead className="text-right text-xs sm:text-sm hidden lg:table-cell">Time</TableHead>
+              <TableHead className="text-xs sm:text-sm hidden sm:table-cell">
+                Type
+              </TableHead>
+              <TableHead className="text-xs sm:text-sm hidden md:table-cell">
+                Status
+              </TableHead>
+              <TableHead className="text-right text-xs sm:text-sm">
+                Value
+              </TableHead>
+              <TableHead className="text-right text-xs sm:text-sm hidden lg:table-cell">
+                Time
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {transactions.map((tx, index) => {
               const isSent = tx.from.toLowerCase() === address.toLowerCase();
-              const isSuccess = tx.isError === '0';
+              const isSuccess = tx.isError === "0";
               const chainConfig = CHAIN_EXPLORERS[tx.chainId];
-              
+
               return (
-                <TableRow 
+                <TableRow
                   key={`${tx.hash}-${tx.chainId}`}
                   className="transition-all hover:bg-muted/50 animate-in fade-in slide-in-from-bottom-2"
                   style={{ animationDelay: `${index * 30}ms` }}
@@ -62,18 +85,22 @@ export function TransactionTable({ transactions, address, isLoading }: Transacti
                   {/* Chain Badge */}
                   <TableCell className="py-2.5 sm:py-4">
                     <div className="flex items-center gap-1.5 sm:gap-2">
-                      <img 
-                        src={chainConfig?.logo} 
+                      <img
+                        src={chainConfig?.logo}
                         alt={tx.chainName}
                         className="w-4 h-4 sm:w-5 sm:h-5 rounded-full object-cover flex-shrink-0"
                         onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                          e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                          e.currentTarget.style.display = "none";
+                          e.currentTarget.nextElementSibling?.classList.remove(
+                            "hidden",
+                          );
                         }}
                       />
-                      <div 
-                        className="w-4 h-4 sm:w-5 sm:h-5 rounded-full flex-shrink-0 hidden" 
-                        style={{ backgroundColor: chainConfig?.color || '#888' }}
+                      <div
+                        className="w-4 h-4 sm:w-5 sm:h-5 rounded-full flex-shrink-0 hidden"
+                        style={{
+                          backgroundColor: chainConfig?.color || "#888",
+                        }}
                       />
                       <span className="text-[10px] sm:text-xs font-medium whitespace-nowrap hidden sm:inline">
                         {tx.chainName}
@@ -89,40 +116,48 @@ export function TransactionTable({ transactions, address, isLoading }: Transacti
                       rel="noopener noreferrer"
                       className="flex items-center gap-1 hover:text-primary transition-colors group"
                     >
-                      <span className="hidden md:inline">{tx.hash.slice(0, 10)}...{tx.hash.slice(-8)}</span>
-                      <span className="md:hidden">{tx.hash.slice(0, 6)}...{tx.hash.slice(-4)}</span>
+                      <span className="hidden md:inline">
+                        {tx.hash.slice(0, 10)}...{tx.hash.slice(-8)}
+                      </span>
+                      <span className="md:hidden">
+                        {tx.hash.slice(0, 6)}...{tx.hash.slice(-4)}
+                      </span>
                       <ExternalLink className="h-2.5 w-2.5 sm:h-3 sm:w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                     </a>
                   </TableCell>
 
                   {/* Type (desktop only) */}
                   <TableCell className="py-2.5 sm:py-4 hidden sm:table-cell">
-                    <Badge 
+                    <Badge
                       variant={isSent ? "default" : "secondary"}
                       className={`transition-all text-[10px] sm:text-xs ${
-                        isSent 
-                          ? 'bg-blue-500/20 text-blue-500 hover:bg-blue-500/30 border-blue-500/50' 
-                          : 'bg-green-500/20 text-green-500 hover:bg-green-500/30 border-green-500/50'
+                        isSent
+                          ? "bg-blue-500/20 text-blue-500 hover:bg-blue-500/30 border-blue-500/50"
+                          : "bg-green-500/20 text-green-500 hover:bg-green-500/30 border-green-500/50"
                       }`}
                     >
-                      {isSent ? '↑ Sent' : '↓ Rcv'}
+                      {isSent ? "↑ Sent" : "↓ Rcv"}
                     </Badge>
                   </TableCell>
 
                   {/* Status (tablet+ only) */}
                   <TableCell className="py-2.5 sm:py-4 hidden md:table-cell">
-                    <Badge 
+                    <Badge
                       variant={isSuccess ? "outline" : "destructive"}
                       className={`transition-all text-xs ${
-                        isSuccess 
-                          ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/50' 
-                          : 'bg-red-500/20 text-red-500 border-red-500/50'
+                        isSuccess
+                          ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/50"
+                          : "bg-red-500/20 text-red-500 border-red-500/50"
                       }`}
                     >
                       {isSuccess ? (
-                        <><CheckCircle className="h-3 w-3 mr-1" /> Success</>
+                        <>
+                          <CheckCircle className="h-3 w-3 mr-1" /> Success
+                        </>
                       ) : (
-                        <><XCircle className="h-3 w-3 mr-1" /> Failed</>
+                        <>
+                          <XCircle className="h-3 w-3 mr-1" /> Failed
+                        </>
                       )}
                     </Badge>
                   </TableCell>
@@ -130,11 +165,14 @@ export function TransactionTable({ transactions, address, isLoading }: Transacti
                   {/* Value */}
                   <TableCell className="text-right font-mono py-2.5 sm:py-4">
                     <div className="flex flex-col items-end">
-                      <span className={`text-[10px] sm:text-xs ${isSent ? 'text-blue-500' : 'text-green-500'}`}>
-                        {isSent ? '-' : '+'}{(parseInt(tx.value) / 1e18).toFixed(4)}
+                      <span
+                        className={`text-[10px] sm:text-xs ${isSent ? "text-blue-500" : "text-green-500"}`}
+                      >
+                        {isSent ? "-" : "+"}
+                        {(parseInt(tx.value) / 1e18).toFixed(4)}
                       </span>
                       <span className="text-[9px] sm:text-[10px] text-muted-foreground sm:hidden">
-                        {isSent ? '↑' : '↓'} {isSuccess ? '✓' : '✗'}
+                        {isSent ? "↑" : "↓"} {isSuccess ? "✓" : "✗"}
                       </span>
                     </div>
                   </TableCell>
@@ -157,4 +195,3 @@ export function TransactionTable({ transactions, address, isLoading }: Transacti
     </div>
   );
 }
-

@@ -21,7 +21,7 @@ export interface IChainApiClient {
   fetchTransactions(
     address: string,
     page: number,
-    limit: number
+    limit: number,
   ): Promise<EtherscanTransaction[]>;
 
   /**
@@ -46,7 +46,7 @@ abstract class BaseEtherscanClient implements IChainApiClient {
   async fetchTransactions(
     address: string,
     page: number = 1,
-    limit: number = 100
+    limit: number = 100,
   ): Promise<EtherscanTransaction[]> {
     try {
       const url = this.buildUrl(address, page, limit);
@@ -64,7 +64,7 @@ abstract class BaseEtherscanClient implements IChainApiClient {
       if (this.isErrorResponse(data)) {
         console.error(
           `[${this.chainName}] API Error:`,
-          data.message || data.result
+          data.message || data.result,
         );
         return [];
       }
@@ -103,7 +103,7 @@ abstract class BaseEtherscanClient implements IChainApiClient {
 
     console.log(
       "params",
-      `https://api.etherscan.io/v2/api?${params.toString()}`
+      `https://api.etherscan.io/v2/api?${params.toString()}`,
     );
     return `https://api.etherscan.io/v2/api?${params.toString()}`;
   }

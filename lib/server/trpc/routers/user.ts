@@ -9,7 +9,7 @@
  */
 
 import { ChainApiClientFactory } from "@/lib/chainApiClients";
-import { getTokenPrice } from "@/lib/priceService";
+import { getTokenPrice, getTokenPricesAsync } from "@/lib/priceService";
 import { ERC20_ABI, POPULAR_TOKENS } from "@/lib/tokens";
 import type {
   AlchemyNFT,
@@ -50,7 +50,6 @@ async function fetchLayer3User(address: string): Promise<Layer3User | null> {
   }
 }
 
-
 /**
  * Fetch transactions for a specific chain
  */
@@ -58,7 +57,7 @@ async function fetchChainTransactions(
   address: string,
   chainId: number,
   page: number = 1,
-  limit: number = 100
+  limit: number = 100,
 ): Promise<MultiChainTransaction[]> {
   const client = ChainApiClientFactory.getClient(chainId);
 
@@ -78,7 +77,7 @@ async function fetchChainTransactions(
   } catch (error) {
     console.error(
       `Error fetching transactions for ${client.getChainName()}:`,
-      error
+      error,
     );
     return [];
   }
@@ -95,7 +94,7 @@ export const userRouter = router({
     .input(
       z.object({
         address: z.string().refine(isAddress, "Invalid Ethereum address"),
-      })
+      }),
     )
     .query(async ({ input }) => {
       // Try to find user in Layer3 leaderboard
@@ -108,7 +107,6 @@ export const userRouter = router({
         });
       }
 
-      // Map Layer3User to User type
       const user: User = {
         address: layer3User.address,
         username: layer3User.username,
@@ -120,10 +118,10 @@ export const userRouter = router({
         gmStreak: layer3User.gmStreak,
         nftCount: Math.floor(layer3User.xp / 1000), // Estimate
         joinedAt: new Date(
-          Date.now() - layer3User.gmStreak * 86400000
+          Date.now() - layer3User.gmStreak * 86400000,
         ).toISOString(),
       };
-      
+
       return user;
     }),
 
@@ -134,18 +132,27 @@ export const userRouter = router({
     .input(
       z.object({
         address: z.string().refine(isAddress, "Invalid Ethereum address"),
-      })
+      }),
     )
     .query(async ({ input }) => {
       const balances: TokenBalance[] = [];
 
-      // Fetch native and ERC20 balances for all chains
+      // Pre-fetch prices for all common tokens (background cache refresh)
+      const allSymbols = [
+        ...chains.map((c) => c.nativeCurrency.symbol),
+        ...Object.values(POPULAR_TOKENS)
+          .flat()
+          .map((t) => t.symbol),
+      ];
+      await getTokenPricesAsync(allSymbols).catch(() => {
+        /* Ignore errors, will use cache/mock */
+      });
+
       await Promise.all(
         chains.map(async (chain) => {
           try {
             const client = getChainClient(chain.id);
 
-            // Fetch native balance
             const nativeBalance = await client.getBalance({
               address: input.address as `0x${string}`,
             });
@@ -153,7 +160,7 @@ export const userRouter = router({
             if (nativeBalance > BigInt(0)) {
               const balance = formatUnits(
                 nativeBalance,
-                chain.nativeCurrency.decimals
+                chain.nativeCurrency.decimals,
               );
               const price = getTokenPrice(chain.nativeCurrency.symbol);
               const value = price ? parseFloat(balance) * price : undefined;
@@ -169,7 +176,6 @@ export const userRouter = router({
               });
             }
 
-            // Fetch ERC20 token balances for this chain
             const tokens = POPULAR_TOKENS[chain.id] || [];
 
             await Promise.all(
@@ -185,7 +191,7 @@ export const userRouter = router({
                   if (balance > BigInt(0)) {
                     const balanceFormatted = formatUnits(
                       balance,
-                      token.decimals
+                      token.decimals,
                     );
                     const price = getTokenPrice(token.symbol);
                     const value = price
@@ -206,18 +212,18 @@ export const userRouter = router({
                   // Silently fail for individual tokens
                   console.error(
                     `Error fetching ${token.symbol} balance on chain ${chain.id}:`,
-                    error
+                    error,
                   );
                 }
-              })
+              }),
             );
           } catch (error) {
             console.error(
               `Error fetching balances for chain ${chain.id}:`,
-              error
+              error,
             );
           }
-        })
+        }),
       );
 
       return balances;
@@ -233,7 +239,7 @@ export const userRouter = router({
         chainId: z.number().optional(),
         page: z.number().min(1).default(1),
         limit: z.number().min(1).max(10000).default(50),
-      })
+      }),
     )
     .query(async ({ input }) => {
       let allTransactions: MultiChainTransaction[];
@@ -242,7 +248,7 @@ export const userRouter = router({
         // Single chain request
         if (!ChainApiClientFactory.getClient(input.chainId)) {
           throw new Error(
-            `Unsupported chain: ${input.chainId}. Supported chains: ${ChainApiClientFactory.getSupportedChainIds().join(", ")}`
+            `Unsupported chain: ${input.chainId}. Supported chains: ${ChainApiClientFactory.getSupportedChainIds().join(", ")}`,
           );
         }
 
@@ -250,7 +256,7 @@ export const userRouter = router({
           input.address,
           input.chainId,
           input.page,
-          input.limit
+          input.limit,
         );
       } else {
         // Multi-chain request - fetch all supported chains in parallel
@@ -258,21 +264,19 @@ export const userRouter = router({
 
         const results = await Promise.allSettled(
           supportedChains.map((chainId) =>
-            fetchChainTransactions(input.address, chainId, 1, input.limit)
-          )
+            fetchChainTransactions(input.address, chainId, 1, input.limit),
+          ),
         );
 
-        // Extract successful results
         allTransactions = results
           .filter((result) => result.status === "fulfilled")
           .flatMap(
             (result) =>
-              (result as PromiseFulfilledResult<MultiChainTransaction[]>).value
+              (result as PromiseFulfilledResult<MultiChainTransaction[]>).value,
           );
 
-        // Sort by timestamp (newest first)
         allTransactions.sort(
-          (a, b) => parseInt(b.timeStamp) - parseInt(a.timeStamp)
+          (a, b) => parseInt(b.timeStamp) - parseInt(a.timeStamp),
         );
 
         // Apply limit after merging all chains
@@ -289,21 +293,20 @@ export const userRouter = router({
     .input(
       z.object({
         address: z.string().refine(isAddress, "Invalid Ethereum address"),
-      })
+      }),
     )
     .query(async ({ input }) => {
       try {
-        // Fetch NFTs from Alchemy API
         const alchemyUrl = `https://eth-mainnet.g.alchemy.com/nft/v3/${process.env.ALCHEMY_API_KEY}/getNFTsForOwner`;
         const response = await fetch(
-          `${alchemyUrl}?owner=${input.address}&withMetadata=true&pageSize=100`
+          `${alchemyUrl}?owner=${input.address}&withMetadata=true&pageSize=100`,
         );
 
         if (!response.ok) {
           console.error(
             "Alchemy API error:",
             response.status,
-            response.statusText
+            response.statusText,
           );
           return [];
         }
@@ -318,4 +321,3 @@ export const userRouter = router({
       }
     }),
 });
-

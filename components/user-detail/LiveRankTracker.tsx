@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { trpc } from "@/lib/client/trpc";
 import { ArrowDown, ArrowUp, TrendingUp } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner"; // You might need to install: pnpm add sonner
+import { toast } from "sonner";
 
 interface LiveRankTrackerProps {
   address: string;
@@ -14,8 +14,12 @@ interface LiveRankTrackerProps {
 /**
  * LiveRankTracker Component
  *
- * Tracks and displays real-time rank changes for a specific user
- * Shows notifications when rank changes
+ * Stable real-time rank tracking with validation:
+ * 1. Fetches initial rank via query (stable, one-time)
+ * 2. Subscribes to rank changes for real-time updates
+ * 3. Validates data to prevent wrong notifications
+ * 4. Deduplicates history entries
+ * 5. Only shows toasts for actual rank changes (not initial load)
  */
 export function LiveRankTracker({ address }: LiveRankTrackerProps) {
   const [currentRank, setCurrentRank] = useState<number | null>(null);
@@ -27,47 +31,92 @@ export function LiveRankTracker({ address }: LiveRankTrackerProps) {
     }>
   >([]);
 
-  // Subscribe to user rank changes
+  // Fetch initial rank (stable, one-time query)
+  const { data: initialRankData } = trpc.leaderboard.getUserRank.useQuery(
+    { address },
+    {
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      staleTime: Infinity,
+    },
+  );
+
+  // Set initial rank from query (before subscription starts)
+  if (initialRankData?.rank && currentRank === null) {
+    setCurrentRank(initialRankData.rank);
+  }
+
+  // Subscribe to user rank changes (real-time updates)
   trpc.leaderboard.watchUserRank.useSubscription(
     { address },
     {
       onData: (data) => {
+        if (!data || typeof data.rank !== "number" || data.rank <= 0) {
+          console.warn("[LiveRankTracker] Invalid rank data received:", data);
+          return;
+        }
+
+        // Skip initial load toast (isInitial flag from server)
+        const isInitialLoad = data.isInitial;
         const change = data.previousRank - data.rank;
 
-        // Update current rank
-        setCurrentRank(data.rank);
+        if (data.rank > 0) {
+          setCurrentRank(data.rank);
+        }
 
-        // Add to history
-        setRankHistory((prev) => [
-          {
-            rank: data.rank,
-            timestamp: new Date(data.timestamp),
-            change,
-          },
-          ...prev.slice(0, 4), // Keep last 5
-        ]);
+        // Only add to history if rank actually changed (not initial load)
+        if (!isInitialLoad && change !== 0) {
+          // Additional validation: make sure previous and current rank are different
+          if (data.previousRank === data.rank) {
+            console.warn(
+              "[LiveRankTracker] Rank change detected but ranks are same:",
+              data,
+            );
+            return;
+          }
 
-        // Show toast notification
-        if (data.movedUp) {
-          toast.success(
-            `🎉 Rank Up! You moved from #${data.previousRank} to #${data.rank}`,
-            {
-              description: `You gained ${Math.abs(change)} position${Math.abs(change) > 1 ? "s" : ""}!`,
+          setRankHistory((prev) => {
+            // Prevent duplicate entries
+            if (prev.length > 0 && prev[0].rank === data.rank) {
+              return prev;
             }
-          );
-        } else {
-          toast.info(`Rank Update: #${data.rank}`, {
-            description: `You moved from #${data.previousRank}`,
+
+            return [
+              {
+                rank: data.rank,
+                timestamp: new Date(data.timestamp),
+                change,
+              },
+              ...prev.slice(0, 4), // Keep last 5
+            ];
           });
+
+          // Show toast notification only for actual rank changes
+          if (data.movedUp && change > 0) {
+            toast.success(
+              `🎉 Rank Up! You moved from #${data.previousRank} to #${data.rank}`,
+              {
+                description: `You gained ${Math.abs(change)} position${Math.abs(change) > 1 ? "s" : ""}!`,
+              },
+            );
+          } else if (change < 0) {
+            toast.info(`Rank Update: #${data.rank}`, {
+              description: `You moved from #${data.previousRank}`,
+            });
+          }
         }
       },
       onError: (err) => {
-        console.error("Rank subscription error:", err);
+        console.error("[LiveRankTracker] Subscription error:", err);
       },
-    }
+    },
   );
 
-  if (currentRank === null && rankHistory.length === 0) {
+  if (currentRank === null) {
+    return null;
+  }
+
+  if (rankHistory.length === 0) {
     return null;
   }
 

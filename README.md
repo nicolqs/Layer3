@@ -131,16 +131,19 @@ All API calls are type-safe through tRPC. No manual typing required!
 ### Leaderboard Router (`trpc.leaderboard.*`)
 
 **Queries:**
+
 - `list({ page, limit, sortBy })` - Get paginated leaderboard
 - `getUserRank({ address })` - Get user's current rank
 
 **Subscriptions (Real-time):**
+
 - `watchUserRank({ address })` - Subscribe to user rank changes
 - `watchLeaderboard({ limit })` - Subscribe to leaderboard updates
 
 ### User Router (`trpc.user.*`)
 
 **Queries:**
+
 - `get({ address })` - Get user profile with XP, rank, and stats
 - `balances({ address })` - Get token balances across 45+ chains
 - `transactions({ address, chainId?, page?, limit? })` - Get transaction history
@@ -153,17 +156,17 @@ All API calls are type-safe through tRPC. No manual typing required!
 const { data: leaderboard } = trpc.leaderboard.list.useQuery({
   page: 1,
   limit: 50,
-  sortBy: 'xp',
+  sortBy: "xp",
 });
 
 // Real-time subscription
 trpc.leaderboard.watchUserRank.useSubscription(
-  { address: '0x...' },
+  { address: "0x..." },
   {
     onData: (data) => {
       toast.success(`Rank changed to #${data.rank}`);
     },
-  }
+  },
 );
 ```
 
@@ -172,15 +175,18 @@ trpc.leaderboard.watchUserRank.useSubscription(
 **45+ EVM Chains** including:
 
 **Ethereum & L2s (19):**
+
 - Ethereum, Optimism, Arbitrum One, Arbitrum Nova, Base, Blast
 - Linea, Zora, Scroll, Taiko, Mantle, Metis, Mode
 - Redstone, Cyber, Fraxtal, Kroma, Lyra, Loot
 
 **Major L1s (10):**
+
 - BNB Chain, Polygon, Polygon zkEVM, Avalanche, Fantom
 - Moonbeam, Moonriver, Cronos, Gnosis, Celo
 
 **Advanced & zk (13):**
+
 - zkSync Era, Aurora, Harmony, OKX Chain, Shibarium
 - BitTorrent, Ethereum Classic, HECO, Palm, Rootstock
 - Oasis Emerald, XDC

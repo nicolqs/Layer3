@@ -1,9 +1,9 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { TableCell, TableRow } from '@/components/ui/table';
-import { Layer3User } from '@/lib/types';
-import Link from 'next/link';
-import { RankBadge } from './RankBadge';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { TableCell, TableRow } from "@/components/ui/table";
+import { Layer3User } from "@/lib/types";
+import Link from "next/link";
+import { RankBadge } from "./RankBadge";
 
 interface UserRowProps {
   user: Layer3User;
@@ -21,16 +21,27 @@ export function UserRow({ user }: UserRowProps) {
 
       {/* User Info */}
       <TableCell className="py-3 sm:py-4">
-        <Link href={`/user/${user.address}`} className="flex items-center gap-2 sm:gap-3 hover:underline">
+        <Link
+          href={`/user/${user.address}`}
+          className="flex items-center gap-2 sm:gap-3 hover:underline"
+        >
           <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
-            <AvatarImage src={user.avatarCid ? `https://ipfs.io/ipfs/${user.avatarCid}` : undefined} />
+            <AvatarImage
+              src={
+                user.avatarCid
+                  ? `https://ipfs.io/ipfs/${user.avatarCid}`
+                  : undefined
+              }
+            />
             <AvatarFallback className="text-xs sm:text-sm">
-              {user.username?.[0]?.toUpperCase() || user.address.slice(2, 4).toUpperCase()}
+              {user.username?.[0]?.toUpperCase() ||
+                user.address.slice(2, 4).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0">
             <div className="font-medium text-sm sm:text-base truncate">
-              {user.username || `${user.address.slice(0, 6)}...${user.address.slice(-4)}`}
+              {user.username ||
+                `${user.address.slice(0, 6)}...${user.address.slice(-4)}`}
             </div>
             {user.username && (
               <div className="text-xs text-muted-foreground hidden sm:block">
@@ -64,4 +75,3 @@ export function UserRow({ user }: UserRowProps) {
     </TableRow>
   );
 }
-

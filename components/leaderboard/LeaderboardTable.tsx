@@ -1,13 +1,25 @@
-'use client';
+"use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Layer3User } from '@/lib/types';
-import { Search } from 'lucide-react';
-import { useMemo, useState } from 'react';
-import { UserRow } from './UserRow';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Table,
+  TableBody,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Layer3User } from "@/lib/types";
+import { Search } from "lucide-react";
+import { useMemo, useState } from "react";
+import { UserRow } from "./UserRow";
 
 interface LeaderboardTableProps {
   users: Layer3User[];
@@ -15,12 +27,13 @@ interface LeaderboardTableProps {
 }
 
 export function LeaderboardTable({ users, isLoading }: LeaderboardTableProps) {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
   const filteredUsers = useMemo(() => {
-    return users.filter((entry) =>
-      entry.address?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      entry.username?.toLowerCase().includes(searchQuery.toLowerCase())
+    return users.filter(
+      (entry) =>
+        entry.address?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        entry.username?.toLowerCase().includes(searchQuery.toLowerCase()),
     );
   }, [users, searchQuery]);
 
@@ -56,11 +69,19 @@ export function LeaderboardTable({ users, isLoading }: LeaderboardTableProps) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-12 sm:w-16 text-xs sm:text-sm">Rank</TableHead>
+                  <TableHead className="w-12 sm:w-16 text-xs sm:text-sm">
+                    Rank
+                  </TableHead>
                   <TableHead className="text-xs sm:text-sm">User</TableHead>
-                  <TableHead className="text-right text-xs sm:text-sm">XP</TableHead>
-                  <TableHead className="text-right text-xs sm:text-sm hidden sm:table-cell">Level</TableHead>
-                  <TableHead className="text-right text-xs sm:text-sm hidden md:table-cell">GM Streak</TableHead>
+                  <TableHead className="text-right text-xs sm:text-sm">
+                    XP
+                  </TableHead>
+                  <TableHead className="text-right text-xs sm:text-sm hidden sm:table-cell">
+                    Level
+                  </TableHead>
+                  <TableHead className="text-right text-xs sm:text-sm hidden md:table-cell">
+                    GM Streak
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -75,4 +96,3 @@ export function LeaderboardTable({ users, isLoading }: LeaderboardTableProps) {
     </Card>
   );
 }
-

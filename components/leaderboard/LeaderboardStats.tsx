@@ -12,7 +12,7 @@ export function LeaderboardStats({ users }: LeaderboardStatsProps) {
   const avgLevel =
     users.length > 0
       ? Math.round(
-          users.reduce((acc, entry) => acc + entry.level, 0) / users.length
+          users.reduce((acc, entry) => acc + entry.level, 0) / users.length,
         )
       : 0;
 

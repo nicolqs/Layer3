@@ -1,5 +1,5 @@
-import { DateRangeFilter, EtherscanTransaction } from './types';
-import { formatUnits } from 'viem';
+import { DateRangeFilter, EtherscanTransaction } from "./types";
+import { formatUnits } from "viem";
 
 export interface TransactionStats {
   totalTransactions: number;
@@ -9,14 +9,14 @@ export interface TransactionStats {
 }
 
 export function calculateTransactionStats(
-  transactions: EtherscanTransaction[]
+  transactions: EtherscanTransaction[],
 ): TransactionStats {
   if (!transactions || transactions.length === 0) {
     return {
       totalTransactions: 0,
-      totalVolume: '0',
+      totalVolume: "0",
       successRate: 0,
-      totalGasFees: '0',
+      totalGasFees: "0",
     };
   }
 
@@ -25,13 +25,13 @@ export function calculateTransactionStats(
   let successCount = 0;
 
   for (const tx of transactions) {
-    totalVolume += BigInt(tx.value || '0');
-    
-    const gasUsed = BigInt(tx.gasUsed || '0');
-    const gasPrice = BigInt(tx.gasPrice || '0');
+    totalVolume += BigInt(tx.value || "0");
+
+    const gasUsed = BigInt(tx.gasUsed || "0");
+    const gasPrice = BigInt(tx.gasPrice || "0");
     totalGas += gasUsed * gasPrice;
-    
-    if (tx.isError === '0') {
+
+    if (tx.isError === "0") {
       successCount++;
     }
   }
@@ -51,33 +51,32 @@ export function calculateTransactionStats(
 export function formatRelativeTime(timestamp: number): string {
   const now = Date.now();
   const diff = now - timestamp * 1000;
-  
+
   const minutes = Math.floor(diff / 60000);
   const hours = Math.floor(diff / 3600000);
   const days = Math.floor(diff / 86400000);
-  
-  if (minutes < 1) return 'Just now';
+
+  if (minutes < 1) return "Just now";
   if (minutes < 60) return `${minutes}m ago`;
   if (hours < 24) return `${hours}h ago`;
   if (days < 30) return `${days}d ago`;
-  
+
   return new Date(timestamp * 1000).toLocaleDateString();
 }
 
 export function filterTransactionsByDateRange(
   transactions: EtherscanTransaction[],
-  range: DateRangeFilter
+  range: DateRangeFilter,
 ): EtherscanTransaction[] {
-  if (range === 'all') return transactions;
-  
+  if (range === "all") return transactions;
+
   const now = Date.now() / 1000;
   const ranges = {
-    '7d': 7 * 24 * 60 * 60,
-    '30d': 30 * 24 * 60 * 60,
-    '90d': 90 * 24 * 60 * 60,
+    "7d": 7 * 24 * 60 * 60,
+    "30d": 30 * 24 * 60 * 60,
+    "90d": 90 * 24 * 60 * 60,
   };
-  
-  const cutoff = now - ranges[range];
-  return transactions.filter(tx => parseInt(tx.timeStamp) >= cutoff);
-}
 
+  const cutoff = now - ranges[range];
+  return transactions.filter((tx) => parseInt(tx.timeStamp) >= cutoff);
+}

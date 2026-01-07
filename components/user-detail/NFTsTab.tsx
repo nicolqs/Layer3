@@ -1,9 +1,15 @@
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { CHAIN_EXPLORERS } from '@/lib/chains';
-import { AlchemyNFT } from '@/lib/types';
-import Image from 'next/image';
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { CHAIN_EXPLORERS } from "@/lib/chains";
+import { AlchemyNFT } from "@/lib/types";
+import Image from "next/image";
 
 interface NFTsTabProps {
   nfts?: AlchemyNFT[];
@@ -15,7 +21,9 @@ export function NFTsTab({ nfts, isLoading }: NFTsTabProps) {
     <Card>
       <CardHeader className="pb-3 sm:pb-6">
         <CardTitle className="text-base sm:text-lg">NFT Collection</CardTitle>
-        <CardDescription className="text-xs sm:text-sm">NFTs owned across all chains</CardDescription>
+        <CardDescription className="text-xs sm:text-sm">
+          NFTs owned across all chains
+        </CardDescription>
       </CardHeader>
       <CardContent className="px-3 sm:px-6">
         {isLoading ? (
@@ -27,16 +35,26 @@ export function NFTsTab({ nfts, isLoading }: NFTsTabProps) {
         ) : nfts && nfts.length > 0 ? (
           <div className="grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
             {nfts.map((nft) => {
-              const imageUrl = nft.image?.cachedUrl || nft.image?.thumbnailUrl || nft.image?.pngUrl || nft.raw?.metadata?.image || '';
-              const nftName = nft.name || nft.raw?.metadata?.name || `Token #${nft.tokenId}`;
-              const collectionName = nft.collection?.name || nft.contract?.name || 'Unknown';
-              
+              const imageUrl =
+                nft.image?.cachedUrl ||
+                nft.image?.thumbnailUrl ||
+                nft.image?.pngUrl ||
+                nft.raw?.metadata?.image ||
+                "";
+              const nftName =
+                nft.name || nft.raw?.metadata?.name || `Token #${nft.tokenId}`;
+              const collectionName =
+                nft.collection?.name || nft.contract?.name || "Unknown";
+
               // NFTs are fetched from Ethereum mainnet (chainId: 1)
               const chainId = 1;
               const chainConfig = CHAIN_EXPLORERS[chainId];
-              
+
               return (
-                <Card key={`${nft.contract.address}-${nft.tokenId}`} className="overflow-hidden group hover:shadow-lg transition-shadow">
+                <Card
+                  key={`${nft.contract.address}-${nft.tokenId}`}
+                  className="overflow-hidden group hover:shadow-lg transition-shadow"
+                >
                   <div className="relative aspect-square bg-muted">
                     {imageUrl ? (
                       <img
@@ -53,11 +71,11 @@ export function NFTsTab({ nfts, isLoading }: NFTsTabProps) {
                         No Image
                       </div>
                     )}
-                    
+
                     {/* Chain badge overlay */}
                     <div className="absolute top-2 right-2">
-                      <Badge 
-                        variant="secondary" 
+                      <Badge
+                        variant="secondary"
                         className="flex items-center gap-1 bg-background/90 backdrop-blur-sm border-border/50 shadow-lg text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5"
                       >
                         <Image
@@ -67,12 +85,16 @@ export function NFTsTab({ nfts, isLoading }: NFTsTabProps) {
                           height={12}
                           className="flex-shrink-0"
                         />
-                        <span className="hidden sm:inline">{chainConfig.name}</span>
+                        <span className="hidden sm:inline">
+                          {chainConfig.name}
+                        </span>
                       </Badge>
                     </div>
                   </div>
                   <CardHeader className="p-3 sm:p-4">
-                    <CardTitle className="text-xs sm:text-sm truncate">{nftName}</CardTitle>
+                    <CardTitle className="text-xs sm:text-sm truncate">
+                      {nftName}
+                    </CardTitle>
                     <CardDescription className="text-[10px] sm:text-xs truncate">
                       {collectionName}
                     </CardDescription>
@@ -90,4 +112,3 @@ export function NFTsTab({ nfts, isLoading }: NFTsTabProps) {
     </Card>
   );
 }
-

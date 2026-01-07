@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ThemeProvider } from 'next-themes';
-import { useState } from 'react';
-import { trpc, createTRPCClient } from '@/lib/client/trpc';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ThemeProvider } from "next-themes";
+import { useState } from "react";
+import { trpc, createTRPCClient } from "@/lib/client/trpc";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -17,7 +17,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
             retry: 2, // Retry failed requests twice
           },
         },
-      })
+      }),
   );
 
   const [trpcClient] = useState(() => createTRPCClient());
@@ -32,4 +32,3 @@ export function Providers({ children }: { children: React.ReactNode }) {
     </trpc.Provider>
   );
 }
-

@@ -16,11 +16,11 @@ export type PriceDisplayMode = "native" | "usd";
 export function formatNativeAmount(
   balance: string,
   symbol: string,
-  decimals: number = 4
+  decimals: number = 4,
 ): string {
   const amount = parseFloat(balance);
   if (isNaN(amount)) return "0";
-  
+
   return `${amount.toFixed(decimals)} ${symbol}`;
 }
 
@@ -29,15 +29,12 @@ export function formatNativeAmount(
  * @param balance - Token balance string
  * @param price - Token price in USD
  */
-export function formatUSDValue(
-  balance: string,
-  price?: number
-): string | null {
+export function formatUSDValue(balance: string, price?: number): string | null {
   if (!price) return null;
-  
+
   const amount = parseFloat(balance);
   if (isNaN(amount)) return null;
-  
+
   const usdValue = amount * price;
   return formatUSD(usdValue);
 }
@@ -67,7 +64,7 @@ export function formatUSD(value: number): string {
  */
 export function getDisplayValue(
   token: TokenBalance,
-  mode: PriceDisplayMode
+  mode: PriceDisplayMode,
 ): {
   primary: string;
   secondary: string | null;
@@ -81,7 +78,9 @@ export function getDisplayValue(
     const usdValue = formatUSDValue(token.balance, token.price);
     return {
       primary: usdValue || formatNativeAmount(token.balance, token.symbol),
-      secondary: usdValue ? formatNativeAmount(token.balance, token.symbol) : null,
+      secondary: usdValue
+        ? formatNativeAmount(token.balance, token.symbol)
+        : null,
     };
   }
 }
@@ -103,4 +102,3 @@ export function calculateTotalValue(balances: TokenBalance[]): number {
 export function getPriceDisplayLabel(mode: PriceDisplayMode): string {
   return mode === "native" ? "USD" : "Native";
 }
-

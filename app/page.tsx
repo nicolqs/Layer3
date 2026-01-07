@@ -4,7 +4,6 @@ import { Header } from "@/components/Header";
 import { LeaderboardStats } from "@/components/leaderboard/LeaderboardStats";
 import { LeaderboardSubHeader } from "@/components/leaderboard/LeaderboardSubHeader";
 import { LeaderboardTable } from "@/components/leaderboard/LeaderboardTable";
-import { LiveLeaderboardUpdates } from "@/components/leaderboard/LiveLeaderboardUpdates";
 import { trpc } from "@/lib/client/trpc";
 
 export default function LeaderboardPage() {
@@ -27,7 +26,6 @@ export default function LeaderboardPage() {
           <LeaderboardStats users={leaderboard} />
         </div>
       </div>
-      <LiveLeaderboardUpdates />
     </>
   );
 }

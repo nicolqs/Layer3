@@ -59,12 +59,12 @@ const leaderboardState: {
 })();
 
 /**
- * Fetch fresh leaderboard data every 30 seconds
+ * Fetch fresh leaderboard data every 60 seconds
  * Tracks rank changes and XP updates in real-time
  */
 setInterval(async () => {
   const previousUsers = new Map(
-    leaderboardState.users.map((u) => [u.address.toLowerCase(), { ...u }])
+    leaderboardState.users.map((u) => [u.address.toLowerCase(), { ...u }]),
   );
 
   const freshUsers = await fetchLeaderboardData();
@@ -78,12 +78,12 @@ setInterval(async () => {
       const prev = previousUsers.get(user.address.toLowerCase());
       if (prev && prev.rank !== user.rank) {
         console.log(
-          `🔄 ${user.username || user.address.slice(0, 8)} moved from #${prev.rank} → #${user.rank}`
+          `🔄 ${user.username || user.address.slice(0, 8)} moved from #${prev.rank} → #${user.rank}`,
         );
       }
     });
   }
-}, 30000); // Update every 30 seconds
+}, 60000); // Update every 60 seconds
 
 /**
  * Leaderboard Router
@@ -98,7 +98,7 @@ export const leaderboardRouter = router({
         page: z.number().min(1).default(1),
         limit: z.number().min(1).max(100).default(50),
         sortBy: z.enum(["xp", "gmStreak", "level"]).default("xp"),
-      })
+      }),
     )
     .query(({ input }) => {
       const { page, limit, sortBy } = input;
@@ -139,11 +139,11 @@ export const leaderboardRouter = router({
     .input(
       z.object({
         address: z.string().refine(isAddress, "Invalid Ethereum address"),
-      })
+      }),
     )
     .query(({ input }) => {
       const user = leaderboardState.users.find(
-        (u) => u.address.toLowerCase() === input.address.toLowerCase()
+        (u) => u.address.toLowerCase() === input.address.toLowerCase(),
       );
 
       if (!user) {
@@ -165,7 +165,7 @@ export const leaderboardRouter = router({
     .input(
       z.object({
         address: z.string().refine(isAddress, "Invalid Ethereum address"),
-      })
+      }),
     )
     .subscription(({ input }) => {
       return observable<{
@@ -175,39 +175,74 @@ export const leaderboardRouter = router({
         xp: number;
         movedUp: boolean;
         timestamp: number;
+        isInitial: boolean;
       }>((emit) => {
         let previousRank = 0;
+        let hasEmittedInitial = false;
 
-        // Find initial rank
+        // Find initial rank and emit immediately
         const initialUser = leaderboardState.users.find(
-          (u) => u.address.toLowerCase() === input.address.toLowerCase()
+          (u) => u.address.toLowerCase() === input.address.toLowerCase(),
         );
 
         if (initialUser) {
           previousRank = initialUser.rank;
+
+          // Emit initial state immediately
+          emit.next({
+            address: initialUser.address,
+            rank: initialUser.rank,
+            previousRank: initialUser.rank, // Same as current for initial
+            xp: initialUser.xp,
+            movedUp: false, // No movement on initial load
+            timestamp: Date.now(),
+            isInitial: true,
+          });
+
+          hasEmittedInitial = true;
         }
 
         // Check for updates every 2 seconds
         const interval = setInterval(() => {
           const user = leaderboardState.users.find(
-            (u) => u.address.toLowerCase() === input.address.toLowerCase()
+            (u) => u.address.toLowerCase() === input.address.toLowerCase(),
           );
 
-          if (user && user.rank !== previousRank) {
+          if (!user) {
+            return;
+          }
+
+          // Emit initial state if we haven't yet (user just joined leaderboard)
+          if (!hasEmittedInitial) {
+            previousRank = user.rank;
+            emit.next({
+              address: user.address,
+              rank: user.rank,
+              previousRank: user.rank,
+              xp: user.xp,
+              movedUp: false,
+              timestamp: Date.now(),
+              isInitial: true,
+            });
+            hasEmittedInitial = true;
+            return;
+          }
+
+          if (user.rank !== previousRank && previousRank > 0) {
             emit.next({
               address: user.address,
               rank: user.rank,
               previousRank: previousRank,
               xp: user.xp,
-              movedUp: previousRank > 0 && user.rank < previousRank,
+              movedUp: user.rank < previousRank, // Lower rank number = better position
               timestamp: Date.now(),
+              isInitial: false,
             });
 
             previousRank = user.rank;
           }
         }, 2000);
 
-        // Cleanup
         return () => {
           clearInterval(interval);
         };
@@ -222,7 +257,7 @@ export const leaderboardRouter = router({
     .input(
       z.object({
         limit: z.number().min(1).max(100).default(10),
-      })
+      }),
     )
     .subscription(({ input }) => {
       return observable<{
@@ -231,13 +266,11 @@ export const leaderboardRouter = router({
       }>((emit) => {
         let lastEmit = 0;
 
-        // Send initial data
         emit.next({
           users: leaderboardState.users.slice(0, input.limit),
           timestamp: Date.now(),
         });
 
-        // Check for updates every 5 seconds
         const interval = setInterval(() => {
           if (leaderboardState.lastUpdate > lastEmit) {
             emit.next({
@@ -248,7 +281,6 @@ export const leaderboardRouter = router({
           }
         }, 5000);
 
-        // Cleanup
         return () => {
           clearInterval(interval);
         };

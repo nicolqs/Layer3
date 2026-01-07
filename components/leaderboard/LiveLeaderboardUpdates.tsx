@@ -34,7 +34,7 @@ export function LiveLeaderboardUpdates() {
       onError: (err) => {
         console.error("Subscription error:", err);
       },
-    }
+    },
   );
 
   // Format time since last update
@@ -50,28 +50,28 @@ export function LiveLeaderboardUpdates() {
   };
 
   return (
-    <div className="hidden md:block fixed bottom-0 left-0 right-0 z-50 border-t border-border/50 bg-background/95 backdrop-blur-lg shadow-lg">
-      <div className="max-w-7xl mx-auto px-6 py-2">
-        <div className="flex items-center justify-between gap-3">
+    <div className="hidden md:block fixed bottom-0 left-0 right-0 z-50 h-[25px] border-t border-border/50 bg-background/95 backdrop-blur-lg shadow-lg">
+      <div className="h-full max-w-7xl mx-auto px-4">
+        <div className="h-full flex items-center justify-between gap-3">
           {/* Left: Live indicator */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             {/* Flashing dot */}
             <div className="relative flex items-center justify-center">
               <div
-                className={`h-2 w-2 rounded-full transition-all duration-300 ${
+                className={`h-1.5 w-1.5 rounded-full transition-all duration-300 ${
                   isFlashing
                     ? "bg-green-500 shadow-lg shadow-green-500/70 scale-125"
                     : "bg-green-500/60"
                 }`}
               />
               {isFlashing && (
-                <div className="absolute inset-0 h-2 w-2 rounded-full bg-green-500 animate-ping opacity-75" />
+                <div className="absolute inset-0 h-1.5 w-1.5 rounded-full bg-green-500 animate-ping opacity-75" />
               )}
             </div>
 
             {/* LIVE text */}
             <span
-              className={`text-xs font-bold tracking-wider transition-all duration-300 ${
+              className={`text-[10px] font-bold tracking-wider transition-all duration-300 ${
                 isFlashing
                   ? "text-green-500 scale-105"
                   : "text-green-600 dark:text-green-400"
@@ -81,20 +81,20 @@ export function LiveLeaderboardUpdates() {
             </span>
 
             {/* Separator */}
-            <div className="h-3 w-px bg-border/50" />
+            <div className="h-2.5 w-px bg-border/50" />
 
             {/* Last update time */}
-            <span className="text-[10px] text-muted-foreground">
+            <span className="text-[9px] text-muted-foreground">
               {getTimeSinceUpdate()}
             </span>
           </div>
 
           {/* Center: Update counter */}
-          <div className="flex items-center gap-2">
-            <Activity className="h-3 w-3 text-muted-foreground" />
-            <span className="text-[10px] text-muted-foreground">Updates</span>
-            <div className="flex items-center justify-center min-w-[24px] h-5 px-1.5 rounded bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-purple-500/30">
-              <span className="text-xs font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+          <div className="flex items-center gap-1.5">
+            <Activity className="h-2.5 w-2.5 text-muted-foreground" />
+            <span className="text-[9px] text-muted-foreground">Updates</span>
+            <div className="flex items-center justify-center min-w-[20px] h-4 px-1 rounded bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-purple-500/30">
+              <span className="text-[10px] font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                 {updateCount}
               </span>
             </div>

@@ -79,7 +79,7 @@ export function TransactionFilters({
                         onError={(e) => {
                           e.currentTarget.style.display = "none";
                           e.currentTarget.nextElementSibling?.classList.remove(
-                            "hidden"
+                            "hidden",
                           );
                         }}
                       />

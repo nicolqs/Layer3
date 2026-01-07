@@ -9,16 +9,6 @@ export interface User {
   joinedAt?: string;
 }
 
-export interface LeaderboardEntry {
-  rank: number;
-  address: string;
-  ensName?: string;
-  avatar?: string;
-  xp: number;
-  gmStreak: number;
-  change?: number; // rank change
-}
-
 export interface Layer3User {
   rank: number;
   address: string;
@@ -27,16 +17,6 @@ export interface Layer3User {
   gmStreak: number;
   xp: number;
   level: number;
-}
-
-export interface Transaction {
-  hash: string;
-  from: string;
-  to: string;
-  value: string;
-  timestamp: number;
-  chainId: number;
-  status: "success" | "failed";
 }
 
 export interface EtherscanTransaction {
@@ -133,22 +113,4 @@ export interface AlchemyNFT {
     symbol?: string;
     totalSupply?: string;
   };
-}
-
-export interface NFT {
-  tokenId: string;
-  name: string;
-  description?: string;
-  image: string;
-  collection: string | NFTCollection;
-  chainId: number;
-  contractAddress: string;
-}
-
-export interface UserStats {
-  totalTransactions: number;
-  totalVolume: string;
-  chainsActive: number;
-  firstTransaction?: number;
-  lastTransaction?: number;
 }
