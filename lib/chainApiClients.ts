@@ -272,6 +272,156 @@ export class XDCApiClient extends BaseEtherscanClient {
   protected chainName = "XDC Network";
 }
 
+// ========== New L2s ==========
+
+/**
+ * Arbitrum Nova API Client
+ */
+export class ArbitrumNovaApiClient extends BaseEtherscanClient {
+  protected chainId = 42170;
+  protected chainName = "Arbitrum Nova";
+}
+
+/**
+ * Blast API Client
+ */
+export class BlastApiClient extends BaseEtherscanClient {
+  protected chainId = 81457;
+  protected chainName = "Blast";
+}
+
+/**
+ * Zora API Client
+ */
+export class ZoraApiClient extends BaseEtherscanClient {
+  protected chainId = 7777777;
+  protected chainName = "Zora";
+}
+
+/**
+ * Taiko API Client
+ */
+export class TaikoApiClient extends BaseEtherscanClient {
+  protected chainId = 167000;
+  protected chainName = "Taiko";
+}
+
+/**
+ * Metis API Client
+ */
+export class MetisApiClient extends BaseEtherscanClient {
+  protected chainId = 1088;
+  protected chainName = "Metis";
+}
+
+/**
+ * Mode API Client
+ */
+export class ModeApiClient extends BaseEtherscanClient {
+  protected chainId = 34443;
+  protected chainName = "Mode";
+}
+
+/**
+ * Redstone API Client
+ */
+export class RedstoneApiClient extends BaseEtherscanClient {
+  protected chainId = 690;
+  protected chainName = "Redstone";
+}
+
+/**
+ * Cyber API Client
+ */
+export class CyberApiClient extends BaseEtherscanClient {
+  protected chainId = 7560;
+  protected chainName = "Cyber";
+}
+
+/**
+ * Fraxtal API Client
+ */
+export class FraxtalApiClient extends BaseEtherscanClient {
+  protected chainId = 252;
+  protected chainName = "Fraxtal";
+}
+
+/**
+ * Kroma API Client
+ */
+export class KromaApiClient extends BaseEtherscanClient {
+  protected chainId = 255;
+  protected chainName = "Kroma";
+}
+
+// ========== Major L1s / Sidechains ==========
+
+/**
+ * Polygon zkEVM API Client
+ */
+export class PolygonZkEVMApiClient extends BaseEtherscanClient {
+  protected chainId = 1101;
+  protected chainName = "Polygon zkEVM";
+}
+
+/**
+ * Fantom API Client
+ */
+export class FantomApiClient extends BaseEtherscanClient {
+  protected chainId = 250;
+  protected chainName = "Fantom";
+}
+
+/**
+ * Moonriver API Client
+ */
+export class MoonriverApiClient extends BaseEtherscanClient {
+  protected chainId = 1285;
+  protected chainName = "Moonriver";
+}
+
+/**
+ * Cronos API Client
+ */
+export class CronosApiClient extends BaseEtherscanClient {
+  protected chainId = 25;
+  protected chainName = "Cronos";
+}
+
+/**
+ * Aurora API Client
+ */
+export class AuroraApiClient extends BaseEtherscanClient {
+  protected chainId = 1313161554;
+  protected chainName = "Aurora";
+}
+
+// ========== Additional Chains ==========
+
+/**
+ * Shibarium API Client
+ */
+export class ShibariumApiClient extends BaseEtherscanClient {
+  protected chainId = 109;
+  protected chainName = "Shibarium";
+}
+
+/**
+ * Ethereum Classic API Client
+ */
+export class EthereumClassicApiClient extends BaseEtherscanClient {
+  protected chainId = 61;
+  protected chainName = "Ethereum Classic";
+}
+
+/**
+ * Rootstock API Client
+ */
+export class RootstockApiClient extends BaseEtherscanClient {
+  protected chainId = 30;
+  protected chainName = "Rootstock";
+}
+
 // ============================================================================
 // Factory - Open/Closed Principle
 // ============================================================================
@@ -285,21 +435,44 @@ export class ChainApiClientFactory {
     number,
     IChainApiClient
   >([
+    // Ethereum & L2s
     [1, new EthereumApiClient()],
     [10, new OptimismApiClient()],
-    [56, new BNBApiClient()],
-    [100, new GnosisApiClient()],
-    [137, new PolygonApiClient()],
-    [324, new zkSyncApiClient()],
-    [1284, new MoonbeamApiClient()],
-    [5000, new MantleApiClient()],
-    [8453, new BaseApiClient()],
     [42161, new ArbitrumApiClient()],
-    [42220, new CeloApiClient()],
-    [43114, new AvalancheApiClient()],
-    [50, new XDCApiClient()],
+    [42170, new ArbitrumNovaApiClient()],
+    [8453, new BaseApiClient()],
+    [81457, new BlastApiClient()],
     [59144, new LineaApiClient()],
+    [7777777, new ZoraApiClient()],
     [534352, new ScrollApiClient()],
+    [167000, new TaikoApiClient()],
+    [5000, new MantleApiClient()],
+    [1088, new MetisApiClient()],
+    [34443, new ModeApiClient()],
+    [690, new RedstoneApiClient()],
+    [7560, new CyberApiClient()],
+    [252, new FraxtalApiClient()],
+    [255, new KromaApiClient()],
+
+    // Major L1s / Sidechains
+    [56, new BNBApiClient()],
+    [137, new PolygonApiClient()],
+    [1101, new PolygonZkEVMApiClient()],
+    [43114, new AvalancheApiClient()],
+    [250, new FantomApiClient()],
+    [1284, new MoonbeamApiClient()],
+    [1285, new MoonriverApiClient()],
+    [25, new CronosApiClient()],
+    [100, new GnosisApiClient()],
+    [42220, new CeloApiClient()],
+    [1313161554, new AuroraApiClient()],
+
+    // zk / Emerging
+    [324, new zkSyncApiClient()],
+    [109, new ShibariumApiClient()],
+    [61, new EthereumClassicApiClient()],
+    [30, new RootstockApiClient()],
+    [50, new XDCApiClient()],
   ]);
 
   /**

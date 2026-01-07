@@ -55,7 +55,7 @@ export function BalancesTab({ balances, isLoading }: BalancesTabProps) {
                 )}
               </div>
               <CardDescription className="text-xs sm:text-sm">
-                Assets across 15 chains
+                Assets across 45+ chains
               </CardDescription>
             </div>
 
