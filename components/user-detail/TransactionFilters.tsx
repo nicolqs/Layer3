@@ -2,14 +2,23 @@
 
 import { Button } from '@/components/ui/button'
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import { CHAIN_CATEGORIES, POPULAR_CHAINS, getChainInfo } from '@/lib/chains'
 import { DATE_RANGE_OPTIONS, DateRangeFilter } from '@/lib/types'
+import { cn } from '@/lib/utils'
+import { Check, ChevronsUpDown } from 'lucide-react'
+import { useState } from 'react'
 
 interface TransactionFiltersProps {
   selectedChain: number | 'all'
@@ -24,6 +33,11 @@ export function TransactionFilters({
   dateRange,
   setDateRange,
 }: TransactionFiltersProps) {
+  const [open, setOpen] = useState(false)
+
+  const selectedChainInfo =
+    selectedChain === 'all' ? null : getChainInfo(selectedChain)
+
   return (
     <div className="flex flex-col gap-3 mb-4 sm:mb-6">
       {/* Date Range Buttons */}
@@ -41,64 +55,138 @@ export function TransactionFilters({
         ))}
       </div>
 
-      {/* Chain Selector */}
-      <Select
-        value={selectedChain.toString()}
-        onValueChange={(v: string) =>
-          setSelectedChain(v === 'all' ? 'all' : parseInt(v))
-        }
-      >
-        <SelectTrigger className="w-full sm:w-[280px] text-sm">
-          <SelectValue placeholder="Select chain" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">
-            <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
-                ∞
+      {/* Chain Selector with Search */}
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="w-full sm:w-[400px] justify-between h-12 text-base font-medium"
+          >
+            {selectedChain === 'all' ? (
+              <div className="flex items-center gap-2.5">
+                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
+                  ∞
+                </div>
+                <span>All Chains</span>
               </div>
-              <span className="font-medium">All Chains</span>
-            </div>
-          </SelectItem>
+            ) : selectedChainInfo ? (
+              <div className="flex items-center gap-2.5">
+                <img
+                  src={selectedChainInfo.logo}
+                  alt={selectedChainInfo.name}
+                  className="w-6 h-6 rounded-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none'
+                    e.currentTarget.nextElementSibling?.classList.remove(
+                      'hidden',
+                    )
+                  }}
+                />
+                <div
+                  className="w-6 h-6 rounded-full hidden flex-shrink-0"
+                  style={{ backgroundColor: selectedChainInfo.color }}
+                />
+                <span>{selectedChainInfo.name}</span>
+                <span className="text-sm text-muted-foreground">
+                  ({selectedChainInfo.nativeCurrency.symbol})
+                </span>
+              </div>
+            ) : (
+              'Select chain'
+            )}
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[400px] p-0" align="start">
+          <Command>
+            <CommandInput
+              placeholder="Search chains..."
+              className="h-12 text-base"
+            />
+            <CommandList>
+              <CommandEmpty>No chain found.</CommandEmpty>
 
-          {Object.entries(CHAIN_CATEGORIES).map(([category, chainIds]) => (
-            <div key={category}>
-              <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
-                {category}
-              </div>
-              {chainIds.map((chainId) => {
-                const chain = getChainInfo(chainId)
-                if (!chain) return null
-                return (
-                  <SelectItem key={chainId} value={chainId.toString()}>
-                    <div className="flex items-center gap-2.5">
-                      <img
-                        src={chain.logo}
-                        alt={chain.name}
-                        className="w-5 h-5 rounded-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none'
-                          e.currentTarget.nextElementSibling?.classList.remove(
-                            'hidden',
-                          )
-                        }}
-                      />
-                      <div
-                        className="w-5 h-5 rounded-full hidden flex-shrink-0"
-                        style={{ backgroundColor: chain.color }}
-                      />
-                      <span className="font-medium">{chain.name}</span>
-                      <span className="text-xs text-muted-foreground">
-                        ({chain.nativeCurrency.symbol})
-                      </span>
+              {/* All Chains Option */}
+              <CommandGroup>
+                <CommandItem
+                  value="all-chains"
+                  onSelect={() => {
+                    setSelectedChain('all')
+                    setOpen(false)
+                  }}
+                  className="h-12"
+                >
+                  <Check
+                    className={cn(
+                      'mr-2 h-4 w-4',
+                      selectedChain === 'all' ? 'opacity-100' : 'opacity-0',
+                    )}
+                  />
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-xs font-bold">
+                      ∞
                     </div>
-                  </SelectItem>
-                )
-              })}
-            </div>
-          ))}
-        </SelectContent>
-      </Select>
+                    <span className="font-medium">All Chains</span>
+                  </div>
+                </CommandItem>
+              </CommandGroup>
+
+              {/* Chain Categories */}
+              {Object.entries(CHAIN_CATEGORIES).map(([category, chainIds]) => (
+                <CommandGroup key={category} heading={category}>
+                  {chainIds.map((chainId) => {
+                    const chain = getChainInfo(chainId)
+                    if (!chain) return null
+                    return (
+                      <CommandItem
+                        key={chainId}
+                        value={`${chain.name} ${chain.nativeCurrency.symbol} ${chainId}`}
+                        onSelect={() => {
+                          setSelectedChain(chainId)
+                          setOpen(false)
+                        }}
+                        className="h-12"
+                      >
+                        <Check
+                          className={cn(
+                            'mr-2 h-4 w-4',
+                            selectedChain === chainId
+                              ? 'opacity-100'
+                              : 'opacity-0',
+                          )}
+                        />
+                        <div className="flex items-center gap-2.5">
+                          <img
+                            src={chain.logo}
+                            alt={chain.name}
+                            className="w-6 h-6 rounded-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none'
+                              e.currentTarget.nextElementSibling?.classList.remove(
+                                'hidden',
+                              )
+                            }}
+                          />
+                          <div
+                            className="w-6 h-6 rounded-full hidden flex-shrink-0"
+                            style={{ backgroundColor: chain.color }}
+                          />
+                          <span className="font-medium">{chain.name}</span>
+                          <span className="text-sm text-muted-foreground">
+                            ({chain.nativeCurrency.symbol})
+                          </span>
+                        </div>
+                      </CommandItem>
+                    )
+                  })}
+                </CommandGroup>
+              ))}
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
 
       {/* Quick Filter Badges */}
       <div className="flex flex-wrap gap-1.5 sm:gap-2">

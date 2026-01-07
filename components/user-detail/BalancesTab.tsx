@@ -92,7 +92,6 @@ export function BalancesTab({ balances, isLoading }: BalancesTabProps) {
                   <List className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 </Button>
               </div>
-              <Wallet className="h-6 w-6 sm:h-8 sm:w-8 text-muted-foreground hidden sm:block" />
             </div>
           </div>
         </CardHeader>

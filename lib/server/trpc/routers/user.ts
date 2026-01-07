@@ -9,13 +9,17 @@
  */
 
 import { ChainApiClientFactory } from '@/lib/chainApiClients'
+import { resolveAddress } from '@/lib/ens'
 import { getTokenPrice, getTokenPricesAsync } from '@/lib/priceService'
 import { ERC20_ABI, POPULAR_TOKENS } from '@/lib/tokens'
 import type {
   AlchemyNFT,
+  BalancesResponse,
   Layer3User,
   MultiChainTransaction,
+  NFTsResponse,
   TokenBalance,
+  TransactionsResponse,
   User,
 } from '@/lib/types'
 import { chains, getChainClient } from '@/lib/viem'
@@ -107,9 +111,13 @@ export const userRouter = router({
         })
       }
 
+      // Resolve ENS name (async, non-blocking)
+      const ensName = await resolveAddress(input.address).catch(() => null)
+
       const user: User = {
         address: layer3User.address,
         username: layer3User.username,
+        ensName: ensName || undefined,
         avatar: layer3User.avatarCid
           ? `https://ipfs.io/ipfs/${layer3User.avatarCid}`
           : undefined,
@@ -134,7 +142,7 @@ export const userRouter = router({
         address: z.string().refine(isAddress, 'Invalid Ethereum address'),
       }),
     )
-    .query(async ({ input }) => {
+    .query(async ({ input }): Promise<BalancesResponse> => {
       const balances: TokenBalance[] = []
 
       // Pre-fetch prices for all common tokens (background cache refresh)
@@ -148,85 +156,76 @@ export const userRouter = router({
         /* Ignore errors, will use cache/mock */
       })
 
-      await Promise.all(
+      await Promise.allSettled(
         chains.map(async (chain) => {
-          try {
-            const client = getChainClient(chain.id)
+          const client = getChainClient(chain.id)
 
-            const nativeBalance = await client.getBalance({
-              address: input.address as `0x${string}`,
+          const nativeBalance = await client.getBalance({
+            address: input.address as `0x${string}`,
+          })
+
+          if (nativeBalance > BigInt(0)) {
+            const balance = formatUnits(
+              nativeBalance,
+              chain.nativeCurrency.decimals,
+            )
+            const price = getTokenPrice(chain.nativeCurrency.symbol)
+            const value = price ? parseFloat(balance) * price : undefined
+
+            balances.push({
+              symbol: chain.nativeCurrency.symbol,
+              name: chain.nativeCurrency.name,
+              balance,
+              decimals: chain.nativeCurrency.decimals,
+              chainId: chain.id,
+              price,
+              value,
             })
-
-            if (nativeBalance > BigInt(0)) {
-              const balance = formatUnits(
-                nativeBalance,
-                chain.nativeCurrency.decimals,
-              )
-              const price = getTokenPrice(chain.nativeCurrency.symbol)
-              const value = price ? parseFloat(balance) * price : undefined
-
-              balances.push({
-                symbol: chain.nativeCurrency.symbol,
-                name: chain.nativeCurrency.name,
-                balance,
-                decimals: chain.nativeCurrency.decimals,
-                chainId: chain.id,
-                price,
-                value,
-              })
-            }
-
-            const tokens = POPULAR_TOKENS[chain.id] || []
-
-            await Promise.all(
-              tokens.map(async (token) => {
-                try {
-                  const balance = (await client.readContract({
-                    address: token.address,
-                    abi: ERC20_ABI,
-                    functionName: 'balanceOf',
-                    args: [input.address as `0x${string}`],
-                  })) as bigint
-
-                  if (balance > BigInt(0)) {
-                    const balanceFormatted = formatUnits(
-                      balance,
-                      token.decimals,
-                    )
-                    const price = getTokenPrice(token.symbol)
-                    const value = price
-                      ? parseFloat(balanceFormatted) * price
-                      : undefined
-
-                    balances.push({
-                      symbol: token.symbol,
-                      name: token.name,
-                      balance: balanceFormatted,
-                      decimals: token.decimals,
-                      chainId: chain.id,
-                      price,
-                      value,
-                    })
-                  }
-                } catch (error) {
-                  // Silently fail for individual tokens
-                  console.error(
-                    `Error fetching ${token.symbol} balance on chain ${chain.id}:`,
-                    error,
-                  )
-                }
-              }),
-            )
-          } catch (error) {
-            console.error(
-              `Error fetching balances for chain ${chain.id}:`,
-              error,
-            )
           }
+
+          const tokens = POPULAR_TOKENS[chain.id] || []
+
+          await Promise.all(
+            tokens.map(async (token) => {
+              try {
+                const balance = (await client.readContract({
+                  address: token.address,
+                  abi: ERC20_ABI,
+                  functionName: 'balanceOf',
+                  args: [input.address as `0x${string}`],
+                })) as bigint
+
+                if (balance > BigInt(0)) {
+                  const balanceFormatted = formatUnits(balance, token.decimals)
+                  const price = getTokenPrice(token.symbol)
+                  const value = price
+                    ? parseFloat(balanceFormatted) * price
+                    : undefined
+
+                  balances.push({
+                    symbol: token.symbol,
+                    name: token.name,
+                    balance: balanceFormatted,
+                    decimals: token.decimals,
+                    chainId: chain.id,
+                    price,
+                    value,
+                  })
+                }
+              } catch (error) {
+                console.error(
+                  `[${chain.name}] Token ${token.symbol} balance fetch failed:`,
+                  error,
+                )
+              }
+            }),
+          )
+
+          return chain.name
         }),
       )
 
-      return balances
+      return { balances }
     }),
 
   /**
@@ -241,23 +240,30 @@ export const userRouter = router({
         limit: z.number().min(1).max(10000).default(50),
       }),
     )
-    .query(async ({ input }) => {
-      let allTransactions: MultiChainTransaction[]
+    .query(async ({ input }): Promise<TransactionsResponse> => {
+      let allTransactions: MultiChainTransaction[] = []
 
       if (input.chainId) {
         // Single chain request
         if (!ChainApiClientFactory.getClient(input.chainId)) {
-          throw new Error(
-            `Unsupported chain: ${input.chainId}. Supported chains: ${ChainApiClientFactory.getSupportedChainIds().join(', ')}`,
-          )
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: `Unsupported chain: ${input.chainId}. Supported chains: ${ChainApiClientFactory.getSupportedChainIds().join(', ')}`,
+          })
         }
 
-        allTransactions = await fetchChainTransactions(
-          input.address,
-          input.chainId,
-          input.page,
-          input.limit,
-        )
+        try {
+          allTransactions = await fetchChainTransactions(
+            input.address,
+            input.chainId,
+            input.page,
+            input.limit,
+          )
+        } catch (error) {
+          const chainName =
+            chains.find((c) => c.id === input.chainId)?.name || 'Unknown'
+          console.error(`[${chainName}] Transaction fetch error:`, error)
+        }
       } else {
         // Multi-chain request - fetch all supported chains in parallel
         const supportedChains = ChainApiClientFactory.getSupportedChainIds()
@@ -268,12 +274,20 @@ export const userRouter = router({
           ),
         )
 
-        allTransactions = results
-          .filter((result) => result.status === 'fulfilled')
-          .flatMap(
-            (result) =>
-              (result as PromiseFulfilledResult<MultiChainTransaction[]>).value,
-          )
+        // Collect successful results
+        results.forEach((result, index) => {
+          if (result.status === 'fulfilled') {
+            allTransactions.push(...result.value)
+          } else {
+            const chainId = supportedChains[index]
+            const chainName =
+              chains.find((c) => c.id === chainId)?.name || 'Unknown'
+            console.error(
+              `[${chainName}] Transaction fetch error:`,
+              result.reason,
+            )
+          }
+        })
 
         allTransactions.sort(
           (a, b) => parseInt(b.timeStamp) - parseInt(a.timeStamp),
@@ -283,7 +297,7 @@ export const userRouter = router({
         allTransactions = allTransactions.slice(0, input.limit * 2)
       }
 
-      return allTransactions
+      return { transactions: allTransactions }
     }),
 
   /**
@@ -295,7 +309,7 @@ export const userRouter = router({
         address: z.string().refine(isAddress, 'Invalid Ethereum address'),
       }),
     )
-    .query(async ({ input }) => {
+    .query(async ({ input }): Promise<NFTsResponse> => {
       try {
         const alchemyUrl = `https://eth-mainnet.g.alchemy.com/nft/v3/${process.env.ALCHEMY_API_KEY}/getNFTsForOwner`
         const response = await fetch(
@@ -304,20 +318,20 @@ export const userRouter = router({
 
         if (!response.ok) {
           console.error(
-            'Alchemy API error:',
+            '[Alchemy] API error:',
             response.status,
             response.statusText,
           )
-          return []
+          return { nfts: [] }
         }
 
         const data = await response.json()
         const nfts: AlchemyNFT[] = data.ownedNfts || []
 
-        return nfts
+        return { nfts }
       } catch (error) {
-        console.error('NFTs API error:', error)
-        return []
+        console.error('[Alchemy] NFT fetch error:', error)
+        return { nfts: [] }
       }
     }),
 })

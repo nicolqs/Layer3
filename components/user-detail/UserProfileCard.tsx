@@ -51,9 +51,17 @@ export function UserProfileCard({ user }: UserProfileCardProps) {
             <div className="min-w-0 flex-1 space-y-1.5 sm:space-y-1.5">
               <div className="space-y-1 sm:space-y-1">
                 <h1 className="text-xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent truncate">
-                  {user.username ||
+                  {user.ensName ||
+                    user.username ||
                     `${user.address.slice(0, 6)}...${user.address.slice(-4)}`}
                 </h1>
+
+                {/* Show username if ENS exists */}
+                {user.ensName && user.username && (
+                  <div className="text-xs sm:text-sm text-muted-foreground">
+                    @{user.username}
+                  </div>
+                )}
 
                 {/* Address with view button */}
                 <div className="flex items-center gap-2 text-xs sm:text-sm">

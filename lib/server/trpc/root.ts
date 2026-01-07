@@ -5,6 +5,7 @@
  */
 
 import { router } from './trpc'
+import { ensRouter } from './routers/ens'
 import { leaderboardRouter } from './routers/leaderboard'
 import { userRouter } from './routers/user'
 
@@ -15,6 +16,7 @@ import { userRouter } from './routers/user'
 export const appRouter = router({
   leaderboard: leaderboardRouter,
   user: userRouter,
+  ens: ensRouter,
 })
 
 // Export type definition for client

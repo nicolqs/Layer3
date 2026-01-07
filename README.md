@@ -1,239 +1,129 @@
-# Layer3 User Leaderboard Web App
+# Layer3 Leaderboard
 
-A modern, full-featured leaderboard and user analytics dashboard for the Layer3 ecosystem, built with Next.js 15 and powered by multi-chain blockchain data.
+Multi-chain analytics dashboard for Layer3. Tracks user activity, balances, and transactions across 45+ EVM chains with real-time updates.
 
-## Features
-
-- **🏆 Live Leaderboard**: Real-time rankings with automatic updates and subscriptions
-- **👤 User Profiles**: Detailed user pages with on-chain data
-- **🔗 Multi-Chain Support**: Track activity across 45+ EVM chains
-- **💰 Token Balances**: View native and ERC20 token holdings across all chains
-- **📊 Transaction History**: Complete transaction timeline with multi-chain support
-- **🖼️ NFT Gallery**: Display NFT collections with Alchemy integration
-- **🌓 Dark Mode**: Elegant light/dark theme toggle (defaults to dark)
-- **⚡ Real-time Updates**: tRPC subscriptions for live rank changes and leaderboard updates
-- **🔒 Type Safety**: End-to-end TypeScript with tRPC
-
-## Tech Stack
-
-- **Framework**: Next.js 15 (App Router)
-- **API Layer**: tRPC for type-safe, real-time APIs
-- **Styling**: Tailwind CSS + shadcn/ui
-- **Blockchain**: Viem for multi-chain interactions (45+ chains)
-- **TypeScript**: Full end-to-end type safety
-- **State Management**: React Query (TanStack Query)
-- **Real-time**: tRPC subscriptions with Server-Sent Events
-- **Notifications**: Sonner for toast notifications
-
-## Architecture
-
-```
-┌─────────────────────────────────────────────────────┐
-│                External Services                     │
-│  Layer3 API │ 45+ RPC Nodes │ Etherscan │ Alchemy  │
-└─────────────────────────────────────────────────────┘
-                         │
-                         ▼
-┌─────────────────────────────────────────────────────┐
-│              tRPC API Layer (/api/trpc)              │
-│  ┌───────────────────┬────────────────────────┐     │
-│  │  Leaderboard      │  User Router           │     │
-│  │  - list           │  - get                 │     │
-│  │  - getUserRank    │  - balances            │     │
-│  │  - watchUserRank* │  - transactions        │     │
-│  │  - watchLeaderboard* │  - nfts             │     │
-│  └───────────────────┴────────────────────────┘     │
-│           *Real-time subscriptions                   │
-└─────────────────────────────────────────────────────┘
-                         │
-                         ▼
-┌─────────────────────────────────────────────────────┐
-│          Frontend (Type-Safe tRPC Client)            │
-│   Leaderboard Page │ User Detail Page                │
-│   shadcn/ui Components │ Live Updates                │
-│   Full TypeScript Auto-completion                    │
-└─────────────────────────────────────────────────────┘
-```
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 20+
-- pnpm (install with `npm install -g pnpm`)
-- API keys for external services (optional for development)
-
-### Installation
-
-1. Clone the repository
-2. Install dependencies:
+## Setup
 
 ```bash
+# Install
 pnpm install
-```
 
-3. Copy `.env.example` to `.env.local` and add your API keys (optional for dev):
-
-```bash
+# Copy env file
 cp .env.example .env.local
-```
 
-### Development
-
-Run the development server:
-
-```bash
+# Run
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to see the app.
+Open [http://localhost:3000](http://localhost:3000)
 
-## Project Structure
+## Tech Stack
 
-```
-layer3/
-├── app/
-│   ├── api/
-│   │   └── trpc/[trpc]/  # Single tRPC endpoint
-│   ├── user/[address]/   # User detail pages
-│   ├── layout.tsx        # Root layout with providers
-│   ├── page.tsx          # Leaderboard page
-│   └── providers.tsx     # tRPC + React Query providers
-├── components/
-│   ├── leaderboard/      # Leaderboard components
-│   │   ├── LiveLeaderboardUpdates.tsx
-│   │   └── ...
-│   ├── user-detail/      # User detail components
-│   │   ├── LiveRankTracker.tsx
-│   │   └── ...
-│   └── ui/               # shadcn/ui components
-├── lib/
-│   ├── server/trpc/      # tRPC server
-│   │   ├── routers/      # API routers
-│   │   │   ├── leaderboard.ts
-│   │   │   └── user.ts
-│   │   ├── trpc.ts       # tRPC config
-│   │   └── root.ts       # Root router
-│   ├── client/
-│   │   └── trpc.ts       # tRPC client
-│   ├── viem.ts           # Viem clients for 45+ chains
-│   ├── chains.ts         # Chain configurations
-│   ├── chainApiClients.ts # Chain API clients
-│   ├── types.ts          # TypeScript types
-│   └── utils.ts          # Utility functions
-└── public/               # Static assets
-```
+**Frontend:**
 
-## tRPC API
+- Next.js 15 (App Router)
+- TypeScript (strict)
+- Tailwind + shadcn/ui
+- React Query
 
-All API calls are type-safe through tRPC. No manual typing required!
+**Backend:**
 
-### Leaderboard Router (`trpc.leaderboard.*`)
+- tRPC (type-safe APIs)
+- Server-Sent Events (real-time)
+- Zod validation
 
-**Queries:**
+**Blockchain:**
 
-- `list({ page, limit, sortBy })` - Get paginated leaderboard
-- `getUserRank({ address })` - Get user's current rank
-
-**Subscriptions (Real-time):**
-
-- `watchUserRank({ address })` - Subscribe to user rank changes
-- `watchLeaderboard({ limit })` - Subscribe to leaderboard updates
-
-### User Router (`trpc.user.*`)
-
-**Queries:**
-
-- `get({ address })` - Get user profile with XP, rank, and stats
-- `balances({ address })` - Get token balances across 45+ chains
-- `transactions({ address, chainId?, page?, limit? })` - Get transaction history
-- `nfts({ address })` - Get NFT collection from Alchemy
-
-### Usage Example
-
-```typescript
-// Frontend - Full type safety!
-const { data: leaderboard } = trpc.leaderboard.list.useQuery({
-  page: 1,
-  limit: 50,
-  sortBy: 'xp',
-})
-
-// Real-time subscription
-trpc.leaderboard.watchUserRank.useSubscription(
-  { address: '0x...' },
-  {
-    onData: (data) => {
-      toast.success(`Rank changed to #${data.rank}`)
-    },
-  },
-)
-```
-
-## Supported Chains
-
-**45+ EVM Chains** including:
-
-**Ethereum & L2s (19):**
-
-- Ethereum, Optimism, Arbitrum One, Arbitrum Nova, Base, Blast
-- Linea, Zora, Scroll, Taiko, Mantle, Metis, Mode
-- Redstone, Cyber, Fraxtal, Kroma, Lyra, Loot
-
-**Major L1s (10):**
-
-- BNB Chain, Polygon, Polygon zkEVM, Avalanche, Fantom
-- Moonbeam, Moonriver, Cronos, Gnosis, Celo
-
-**Advanced & zk (13):**
-
-- zkSync Era, Aurora, Harmony, OKX Chain, Shibarium
-- BitTorrent, Ethereum Classic, HECO, Palm, Rootstock
-- Oasis Emerald, XDC
-
-See `lib/chains.ts` for full list with chain IDs and configurations.
-
-## Development Notes
-
-- **Type Safety**: All API calls are type-safe through tRPC
-- **Real-time Updates**: Subscriptions work out of the box
-- **Mock Data**: Used by default for development
-- **45+ Chains**: Pre-configured and ready to use
-- **No Manual Typing**: tRPC infers types automatically
+- Viem (45+ chains)
+- Etherscan APIs
+- Alchemy NFTs
+- CoinGecko prices
 
 ## What's Implemented
 
-- ✅ tRPC with full type safety
-- ✅ Real-time subscriptions for leaderboard & rank tracking
-- ✅ 45+ chain support with logos and metadata
-- ✅ Alchemy NFT integration
-- ✅ Etherscan API integration (all chains)
-- ✅ Multi-chain transaction aggregation
-- ✅ ERC20 token balance tracking
-- ✅ Dark/Light mode
-- ✅ Mobile responsive design
-- ✅ Toast notifications for rank changes
+**Core:**
 
-## Future Enhancements
+- Real-time leaderboard with live rank updates
+- User profiles with ENS resolution
+- Multi-chain token balances (native + ERC20)
+- Transaction history with smart intent decoding
+- NFT gallery with chain badges
+- Dark/light mode
+- Fully responsive (mobile-first)
 
-- [ ] Real Layer3 API integration (currently using mock)
-- [ ] WebSocket support for better real-time performance
-- [ ] Portfolio value tracking over time
-- [ ] Gas price tracker across chains
-- [ ] Transaction simulator
-- [ ] ENS/domain resolution (ENS, Lens, Farcaster)
-- [ ] Wallet connection (WalletConnect, MetaMask)
-- [ ] Charts and analytics (Recharts)
-- [ ] Quest details page
-- [ ] Advanced filters and search
-- [ ] Export data functionality
-- [ ] CSV/PDF reports
+**Technical:**
 
-## Deploy on Vercel
+- **ENS Resolution**: Address → name with 1hr caching
+- **Intent Decoder**: Recognizes 100+ function signatures (swaps, mints, transfers, etc.)
+- **Multi-chain Parallel Fetching**: `Promise.allSettled` for 45 chains simultaneously
+- **Rate Limiting**: CoinGecko (max 1 req/min)
+- **Real-time Subscriptions**: SSE for rank tracking + leaderboard updates
+- **Searchable Dropdowns**: Chain selector with fuzzy search
+- **Price Toggle**: Switch between native crypto and USD values
 
-Deploy with one click:
+**Chain Support (45+):**
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/layer3-leaderboard)
+- Ethereum + L2s: Base, Optimism, Arbitrum, Scroll, Linea, Zora, etc.
+- Major L1s: Polygon, Avalanche, BSC, Fantom, Gnosis, etc.
+- zk/Advanced: zkSync, Polygon zkEVM, Taiko, etc.
+
+## Key Choices & Trade-offs
+
+**1. tRPC over REST**
+
+- **Why**: Type safety without codegen, refactor-friendly
+- **Trade-off**: Requires Next.js/meta-framework, steeper learning curve
+- **Result**: Worth it. Bugs caught at compile time, not runtime.
+
+**2. Multi-chain from Day 1**
+
+- **Why**: Easier to build right than refactor later
+- **Trade-off**: More complexity upfront
+- **Result**: Factory pattern makes adding chains trivial (~10 lines)
+
+**3. Server-Sent Events (SSE) over WebSockets**
+
+- **Why**: Simpler, works on Vercel, auto-reconnects
+- **Trade-off**: One-way only (fine for this use case)
+- **Result**: 5-10min timeout on Vercel, reconnects automatically
+
+**4. In-memory caching**
+
+- **Why**: Fast, simple, no external dependencies
+- **Trade-off**: Doesn't scale across instances
+- **Result**: Fine for MVP. Use Redis for production.
+
+**5. Promise.allSettled for multi-chain**
+
+- **Why**: Show partial data if some chains fail
+- **Trade-off**: Slightly more complex error handling
+- **Result**: Better UX. Users see 44/45 chains instead of nothing.
+
+## What I'd Do Next
+
+**For Production:**
+
+1. **Redis** - Shared cache across instances, distributed locks
+2. **WebSockets** - Replace SSE for better real-time (no 5min timeout)
+3. **Rate Limiting** - Per-user limits with Upstash
+4. **Monitoring** - Sentry for errors, Axiom for logs
+5. **CDN** - Cache static assets, optimize images
+
+**For Scale (10K+ users):**
+
+- Database for transactions (faster than API calls)
+- Background jobs for data refresh
+- GraphQL layer for flexible queries
+- Indexer for custom analytics
+
+**Features to Add:**
+
+- **Wallet Connection**: WalletConnect, MetaMask, view your own data
+- **Charts**: Portfolio value over time, XP progression (Recharts ready)
+- **Advanced Filters**: Value ranges, protocol-specific, multi-chain select
+- **Exports**: CSV/PDF reports for tax season
+- **Quest Details**: Individual quest pages with requirements
+- **ENS in Transactions**: Show names for from/to addresses (API ready, UI pending)
 
 ## License
 

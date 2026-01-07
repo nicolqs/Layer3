@@ -9,6 +9,10 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { CHAIN_EXPLORERS } from '@/lib/chains'
+import {
+  decodeTransactionIntent,
+  getIntentIcon,
+} from '@/lib/transactionIntent'
 import { formatRelativeTime } from '@/lib/transactionStats'
 import { MultiChainTransaction } from '@/lib/types'
 import { Activity, CheckCircle, ExternalLink, XCircle } from 'lucide-react'
@@ -75,6 +79,7 @@ export function TransactionTable({
               const isSent = tx.from.toLowerCase() === address.toLowerCase()
               const isSuccess = tx.isError === '0'
               const chainConfig = CHAIN_EXPLORERS[tx.chainId]
+              const intent = decodeTransactionIntent(tx, address)
 
               return (
                 <TableRow
@@ -128,16 +133,14 @@ export function TransactionTable({
 
                   {/* Type (desktop only) */}
                   <TableCell className="py-2.5 sm:py-4 hidden sm:table-cell">
-                    <Badge
-                      variant={isSent ? 'default' : 'secondary'}
-                      className={`transition-all text-[10px] sm:text-xs ${
-                        isSent
-                          ? 'bg-blue-500/20 text-blue-500 hover:bg-blue-500/30 border-blue-500/50'
-                          : 'bg-green-500/20 text-green-500 hover:bg-green-500/30 border-green-500/50'
-                      }`}
-                    >
-                      {isSent ? '↑ Sent' : '↓ Rcv'}
-                    </Badge>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-base">
+                        {intent.protocol?.icon || getIntentIcon(intent.type)}
+                      </span>
+                      <span className="text-xs font-medium text-foreground">
+                        {intent.description}
+                      </span>
+                    </div>
                   </TableCell>
 
                   {/* Status (tablet+ only) */}

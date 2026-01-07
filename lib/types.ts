@@ -1,6 +1,7 @@
 export interface User {
   address: string
   username?: string
+  ensName?: string
   avatar?: string
   totalXP: number
   rank: number
@@ -113,4 +114,27 @@ export interface AlchemyNFT {
     symbol?: string
     totalSupply?: string
   }
+}
+
+/**
+ * Service Health Tracking for Graceful Degradation
+ */
+export interface ServiceHealth {
+  service: string
+  status: 'ok' | 'degraded' | 'unavailable'
+  message?: string
+  chainId?: number
+  chainName?: string
+}
+
+export interface BalancesResponse {
+  balances: TokenBalance[]
+}
+
+export interface TransactionsResponse {
+  transactions: MultiChainTransaction[]
+}
+
+export interface NFTsResponse {
+  nfts: AlchemyNFT[]
 }

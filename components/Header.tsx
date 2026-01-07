@@ -1,7 +1,7 @@
 export function Header() {
   return (
     <header className="h-[30px] border-b border-border/50 bg-background/50 backdrop-blur-sm">
-      <div className="h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center">
+      <div className="h-full max-w-7xl mx-auto px-4 sm:px-0 flex items-center">
         <div className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-2xl -z-10" />
 
