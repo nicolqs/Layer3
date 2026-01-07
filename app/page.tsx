@@ -1,20 +1,20 @@
-"use client";
+'use client'
 
-import { Header } from "@/components/Header";
-import { LeaderboardStats } from "@/components/leaderboard/LeaderboardStats";
-import { LeaderboardSubHeader } from "@/components/leaderboard/LeaderboardSubHeader";
-import { LeaderboardTable } from "@/components/leaderboard/LeaderboardTable";
-import { trpc } from "@/lib/client/trpc";
+import { Header } from '@/components/Header'
+import { LeaderboardStats } from '@/components/leaderboard/LeaderboardStats'
+import { LeaderboardSubHeader } from '@/components/leaderboard/LeaderboardSubHeader'
+import { LeaderboardTable } from '@/components/leaderboard/LeaderboardTable'
+import { trpc } from '@/lib/client/trpc'
 
 export default function LeaderboardPage() {
   // Use tRPC for type-safe API calls
   const { data, isLoading } = trpc.leaderboard.list.useQuery({
     page: 1,
     limit: 50,
-    sortBy: "xp",
-  });
+    sortBy: 'xp',
+  })
 
-  const leaderboard = data?.users ?? [];
+  const leaderboard = data?.users ?? []
 
   return (
     <>
@@ -27,5 +27,5 @@ export default function LeaderboardPage() {
         </div>
       </div>
     </>
-  );
+  )
 }

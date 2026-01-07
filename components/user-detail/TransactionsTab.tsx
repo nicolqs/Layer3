@@ -1,4 +1,4 @@
-"use client";
+'use client'
 
 import {
   Card,
@@ -6,24 +6,24 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card'
 import {
   DateRangeFilter,
   MultiChainTransaction,
   TransactionStats as Stats,
-} from "@/lib/types";
-import { useState } from "react";
-import { TransactionFilters } from "./TransactionFilters";
-import { TransactionStats } from "./TransactionStats";
-import { TransactionTable } from "./TransactionTable";
+} from '@/lib/types'
+import { useState } from 'react'
+import { TransactionFilters } from './TransactionFilters'
+import { TransactionStats } from './TransactionStats'
+import { TransactionTable } from './TransactionTable'
 
 interface TransactionsTabProps {
-  transactions: MultiChainTransaction[];
-  stats: Stats;
-  isLoading: boolean;
-  address: string;
-  selectedChain: number | "all";
-  setSelectedChain: (chain: number | "all") => void;
+  transactions: MultiChainTransaction[]
+  stats: Stats
+  isLoading: boolean
+  address: string
+  selectedChain: number | 'all'
+  setSelectedChain: (chain: number | 'all') => void
 }
 
 export function TransactionsTab({
@@ -34,7 +34,7 @@ export function TransactionsTab({
   selectedChain,
   setSelectedChain,
 }: TransactionsTabProps) {
-  const [dateRange, setDateRange] = useState<DateRangeFilter>("all");
+  const [dateRange, setDateRange] = useState<DateRangeFilter>('all')
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -69,5 +69,5 @@ export function TransactionsTab({
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

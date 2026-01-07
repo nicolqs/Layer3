@@ -3,9 +3,9 @@
  * Handles formatting and conversion between native and USD values
  */
 
-import { TokenBalance } from "./types";
+import { TokenBalance } from './types'
 
-export type PriceDisplayMode = "native" | "usd";
+export type PriceDisplayMode = 'native' | 'usd'
 
 /**
  * Format native token amount with symbol
@@ -18,10 +18,10 @@ export function formatNativeAmount(
   symbol: string,
   decimals: number = 4,
 ): string {
-  const amount = parseFloat(balance);
-  if (isNaN(amount)) return "0";
+  const amount = parseFloat(balance)
+  if (isNaN(amount)) return '0'
 
-  return `${amount.toFixed(decimals)} ${symbol}`;
+  return `${amount.toFixed(decimals)} ${symbol}`
 }
 
 /**
@@ -30,13 +30,13 @@ export function formatNativeAmount(
  * @param price - Token price in USD
  */
 export function formatUSDValue(balance: string, price?: number): string | null {
-  if (!price) return null;
+  if (!price) return null
 
-  const amount = parseFloat(balance);
-  if (isNaN(amount)) return null;
+  const amount = parseFloat(balance)
+  if (isNaN(amount)) return null
 
-  const usdValue = amount * price;
-  return formatUSD(usdValue);
+  const usdValue = amount * price
+  return formatUSD(usdValue)
 }
 
 /**
@@ -45,15 +45,15 @@ export function formatUSDValue(balance: string, price?: number): string | null {
  */
 export function formatUSD(value: number): string {
   if (value >= 1_000_000) {
-    return `$${(value / 1_000_000).toFixed(2)}M`;
+    return `$${(value / 1_000_000).toFixed(2)}M`
   } else if (value >= 1_000) {
-    return `$${(value / 1_000).toFixed(2)}K`;
+    return `$${(value / 1_000).toFixed(2)}K`
   } else if (value >= 1) {
-    return `$${value.toFixed(2)}`;
+    return `$${value.toFixed(2)}`
   } else if (value >= 0.01) {
-    return `$${value.toFixed(4)}`;
+    return `$${value.toFixed(4)}`
   } else {
-    return `$${value.toFixed(6)}`;
+    return `$${value.toFixed(6)}`
   }
 }
 
@@ -66,22 +66,22 @@ export function getDisplayValue(
   token: TokenBalance,
   mode: PriceDisplayMode,
 ): {
-  primary: string;
-  secondary: string | null;
+  primary: string
+  secondary: string | null
 } {
-  if (mode === "native") {
+  if (mode === 'native') {
     return {
       primary: formatNativeAmount(token.balance, token.symbol),
       secondary: formatUSDValue(token.balance, token.price),
-    };
+    }
   } else {
-    const usdValue = formatUSDValue(token.balance, token.price);
+    const usdValue = formatUSDValue(token.balance, token.price)
     return {
       primary: usdValue || formatNativeAmount(token.balance, token.symbol),
       secondary: usdValue
         ? formatNativeAmount(token.balance, token.symbol)
         : null,
-    };
+    }
   }
 }
 
@@ -91,14 +91,14 @@ export function getDisplayValue(
  */
 export function calculateTotalValue(balances: TokenBalance[]): number {
   return balances.reduce((acc, balance) => {
-    const value = parseFloat(balance.balance) * (balance.price || 0);
-    return acc + (isNaN(value) ? 0 : value);
-  }, 0);
+    const value = parseFloat(balance.balance) * (balance.price || 0)
+    return acc + (isNaN(value) ? 0 : value)
+  }, 0)
 }
 
 /**
  * Get display label for price mode
  */
 export function getPriceDisplayLabel(mode: PriceDisplayMode): string {
-  return mode === "native" ? "USD" : "Native";
+  return mode === 'native' ? 'USD' : 'Native'
 }

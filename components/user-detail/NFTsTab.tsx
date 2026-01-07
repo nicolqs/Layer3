@@ -1,19 +1,19 @@
-import { Badge } from "@/components/ui/badge";
+import { Badge } from '@/components/ui/badge'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { CHAIN_EXPLORERS } from "@/lib/chains";
-import { AlchemyNFT } from "@/lib/types";
-import Image from "next/image";
+} from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+import { CHAIN_EXPLORERS } from '@/lib/chains'
+import { AlchemyNFT } from '@/lib/types'
+import Image from 'next/image'
 
 interface NFTsTabProps {
-  nfts?: AlchemyNFT[];
-  isLoading: boolean;
+  nfts?: AlchemyNFT[]
+  isLoading: boolean
 }
 
 export function NFTsTab({ nfts, isLoading }: NFTsTabProps) {
@@ -40,15 +40,15 @@ export function NFTsTab({ nfts, isLoading }: NFTsTabProps) {
                 nft.image?.thumbnailUrl ||
                 nft.image?.pngUrl ||
                 nft.raw?.metadata?.image ||
-                "";
+                ''
               const nftName =
-                nft.name || nft.raw?.metadata?.name || `Token #${nft.tokenId}`;
+                nft.name || nft.raw?.metadata?.name || `Token #${nft.tokenId}`
               const collectionName =
-                nft.collection?.name || nft.contract?.name || "Unknown";
+                nft.collection?.name || nft.contract?.name || 'Unknown'
 
               // NFTs are fetched from Ethereum mainnet (chainId: 1)
-              const chainId = 1;
-              const chainConfig = CHAIN_EXPLORERS[chainId];
+              const chainId = 1
+              const chainConfig = CHAIN_EXPLORERS[chainId]
 
               return (
                 <Card
@@ -63,7 +63,7 @@ export function NFTsTab({ nfts, isLoading }: NFTsTabProps) {
                         alt={nftName}
                         className="w-full h-full object-cover"
                         onError={(e) => {
-                          e.currentTarget.src = `https://api.dicebear.com/7.x/shapes/svg?seed=${nft.contract.address}-${nft.tokenId}`;
+                          e.currentTarget.src = `https://api.dicebear.com/7.x/shapes/svg?seed=${nft.contract.address}-${nft.tokenId}`
                         }}
                       />
                     ) : (
@@ -100,7 +100,7 @@ export function NFTsTab({ nfts, isLoading }: NFTsTabProps) {
                     </CardDescription>
                   </CardHeader>
                 </Card>
-              );
+              )
             })}
           </div>
         ) : (
@@ -110,5 +110,5 @@ export function NFTsTab({ nfts, isLoading }: NFTsTabProps) {
         )}
       </CardContent>
     </Card>
-  );
+  )
 }

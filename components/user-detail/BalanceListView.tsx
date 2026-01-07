@@ -1,4 +1,4 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from '@/components/ui/card'
 import {
   Table,
   TableBody,
@@ -6,15 +6,15 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { getChainInfo } from "@/lib/chains";
-import { getTokenLogo } from "@/lib/tokens";
-import { TokenBalance } from "@/lib/types";
-import { PriceDisplayMode, getDisplayValue } from "@/lib/priceUtils";
+} from '@/components/ui/table'
+import { getChainInfo } from '@/lib/chains'
+import { getTokenLogo } from '@/lib/tokens'
+import { TokenBalance } from '@/lib/types'
+import { PriceDisplayMode, getDisplayValue } from '@/lib/priceUtils'
 
 interface BalanceListViewProps {
-  balances: TokenBalance[];
-  priceMode: PriceDisplayMode;
+  balances: TokenBalance[]
+  priceMode: PriceDisplayMode
 }
 
 export function BalanceListView({ balances, priceMode }: BalanceListViewProps) {
@@ -38,9 +38,9 @@ export function BalanceListView({ balances, priceMode }: BalanceListViewProps) {
             </TableHeader>
             <TableBody>
               {balances.map((balance) => {
-                const chainInfo = getChainInfo(balance.chainId);
-                const tokenLogo = getTokenLogo(balance.symbol);
-                const displayValue = getDisplayValue(balance, priceMode);
+                const chainInfo = getChainInfo(balance.chainId)
+                const tokenLogo = getTokenLogo(balance.symbol)
+                const displayValue = getDisplayValue(balance, priceMode)
 
                 return (
                   <TableRow
@@ -57,7 +57,7 @@ export function BalanceListView({ balances, priceMode }: BalanceListViewProps) {
                               alt={balance.symbol}
                               className="w-5 h-5 sm:w-6 sm:h-6 object-contain"
                               onError={(e) =>
-                                (e.currentTarget.style.display = "none")
+                                (e.currentTarget.style.display = 'none')
                               }
                             />
                           </div>
@@ -123,12 +123,12 @@ export function BalanceListView({ balances, priceMode }: BalanceListViewProps) {
                       </div>
                     </TableCell>
                   </TableRow>
-                );
+                )
               })}
             </TableBody>
           </Table>
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }

@@ -1,9 +1,9 @@
-"use client";
+'use client'
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ThemeProvider } from "next-themes";
-import { useState } from "react";
-import { trpc, createTRPCClient } from "@/lib/client/trpc";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ThemeProvider } from 'next-themes'
+import { useState } from 'react'
+import { trpc, createTRPCClient } from '@/lib/client/trpc'
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -18,9 +18,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
           },
         },
       }),
-  );
+  )
 
-  const [trpcClient] = useState(() => createTRPCClient());
+  const [trpcClient] = useState(() => createTRPCClient())
 
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
@@ -30,5 +30,5 @@ export function Providers({ children }: { children: React.ReactNode }) {
         </ThemeProvider>
       </QueryClientProvider>
     </trpc.Provider>
-  );
+  )
 }

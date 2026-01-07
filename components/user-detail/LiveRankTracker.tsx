@@ -1,14 +1,14 @@
-"use client";
+'use client'
 
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { trpc } from "@/lib/client/trpc";
-import { ArrowDown, ArrowUp, TrendingUp } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
+import { trpc } from '@/lib/client/trpc'
+import { ArrowDown, ArrowUp, TrendingUp } from 'lucide-react'
+import { useState } from 'react'
+import { toast } from 'sonner'
 
 interface LiveRankTrackerProps {
-  address: string;
+  address: string
 }
 
 /**
@@ -22,14 +22,14 @@ interface LiveRankTrackerProps {
  * 5. Only shows toasts for actual rank changes (not initial load)
  */
 export function LiveRankTracker({ address }: LiveRankTrackerProps) {
-  const [currentRank, setCurrentRank] = useState<number | null>(null);
+  const [currentRank, setCurrentRank] = useState<number | null>(null)
   const [rankHistory, setRankHistory] = useState<
     Array<{
-      rank: number;
-      timestamp: Date;
-      change: number;
+      rank: number
+      timestamp: Date
+      change: number
     }>
-  >([]);
+  >([])
 
   // Fetch initial rank (stable, one-time query)
   const { data: initialRankData } = trpc.leaderboard.getUserRank.useQuery(
@@ -39,11 +39,11 @@ export function LiveRankTracker({ address }: LiveRankTrackerProps) {
       refetchOnReconnect: false,
       staleTime: Infinity,
     },
-  );
+  )
 
   // Set initial rank from query (before subscription starts)
   if (initialRankData?.rank && currentRank === null) {
-    setCurrentRank(initialRankData.rank);
+    setCurrentRank(initialRankData.rank)
   }
 
   // Subscribe to user rank changes (real-time updates)
@@ -51,17 +51,17 @@ export function LiveRankTracker({ address }: LiveRankTrackerProps) {
     { address },
     {
       onData: (data) => {
-        if (!data || typeof data.rank !== "number" || data.rank <= 0) {
-          console.warn("[LiveRankTracker] Invalid rank data received:", data);
-          return;
+        if (!data || typeof data.rank !== 'number' || data.rank <= 0) {
+          console.warn('[LiveRankTracker] Invalid rank data received:', data)
+          return
         }
 
         // Skip initial load toast (isInitial flag from server)
-        const isInitialLoad = data.isInitial;
-        const change = data.previousRank - data.rank;
+        const isInitialLoad = data.isInitial
+        const change = data.previousRank - data.rank
 
         if (data.rank > 0) {
-          setCurrentRank(data.rank);
+          setCurrentRank(data.rank)
         }
 
         // Only add to history if rank actually changed (not initial load)
@@ -69,16 +69,16 @@ export function LiveRankTracker({ address }: LiveRankTrackerProps) {
           // Additional validation: make sure previous and current rank are different
           if (data.previousRank === data.rank) {
             console.warn(
-              "[LiveRankTracker] Rank change detected but ranks are same:",
+              '[LiveRankTracker] Rank change detected but ranks are same:',
               data,
-            );
-            return;
+            )
+            return
           }
 
           setRankHistory((prev) => {
             // Prevent duplicate entries
             if (prev.length > 0 && prev[0].rank === data.rank) {
-              return prev;
+              return prev
             }
 
             return [
@@ -88,36 +88,36 @@ export function LiveRankTracker({ address }: LiveRankTrackerProps) {
                 change,
               },
               ...prev.slice(0, 4), // Keep last 5
-            ];
-          });
+            ]
+          })
 
           // Show toast notification only for actual rank changes
           if (data.movedUp && change > 0) {
             toast.success(
               `🎉 Rank Up! You moved from #${data.previousRank} to #${data.rank}`,
               {
-                description: `You gained ${Math.abs(change)} position${Math.abs(change) > 1 ? "s" : ""}!`,
+                description: `You gained ${Math.abs(change)} position${Math.abs(change) > 1 ? 's' : ''}!`,
               },
-            );
+            )
           } else if (change < 0) {
             toast.info(`Rank Update: #${data.rank}`, {
               description: `You moved from #${data.previousRank}`,
-            });
+            })
           }
         }
       },
-      onError: (err) => {
-        console.error("[LiveRankTracker] Subscription error:", err);
+      onError: () => {
+        console.log('[LiveRankTracker] Reconnecting...')
       },
     },
-  );
+  )
 
   if (currentRank === null) {
-    return null;
+    return null
   }
 
   if (rankHistory.length === 0) {
-    return null;
+    return null
   }
 
   return (
@@ -146,10 +146,10 @@ export function LiveRankTracker({ address }: LiveRankTrackerProps) {
                   variant="outline"
                   className={`text-xs ${
                     entry.change > 0
-                      ? "bg-green-500/10 border-green-500/20 text-green-600 dark:text-green-400"
+                      ? 'bg-green-500/10 border-green-500/20 text-green-600 dark:text-green-400'
                       : entry.change < 0
-                        ? "bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400"
-                        : "bg-gray-500/10 border-gray-500/20"
+                        ? 'bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400'
+                        : 'bg-gray-500/10 border-gray-500/20'
                   }`}
                 >
                   {entry.change > 0 && <ArrowUp className="h-3 w-3 mr-1" />}
@@ -157,7 +157,7 @@ export function LiveRankTracker({ address }: LiveRankTrackerProps) {
                   {entry.rank}
                   {entry.change !== 0 && (
                     <span className="ml-1 opacity-70">
-                      ({entry.change > 0 ? "+" : ""}
+                      ({entry.change > 0 ? '+' : ''}
                       {entry.change})
                     </span>
                   )}
@@ -168,5 +168,5 @@ export function LiveRankTracker({ address }: LiveRankTrackerProps) {
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }

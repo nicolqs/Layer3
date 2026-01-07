@@ -1,22 +1,22 @@
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { getChainInfo } from "@/lib/chains";
-import { getTokenLogo } from "@/lib/tokens";
-import { TokenBalance } from "@/lib/types";
-import { PriceDisplayMode, getDisplayValue } from "@/lib/priceUtils";
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
+import { getChainInfo } from '@/lib/chains'
+import { getTokenLogo } from '@/lib/tokens'
+import { TokenBalance } from '@/lib/types'
+import { PriceDisplayMode, getDisplayValue } from '@/lib/priceUtils'
 
 interface BalanceCardViewProps {
-  balances: TokenBalance[];
-  priceMode: PriceDisplayMode;
+  balances: TokenBalance[]
+  priceMode: PriceDisplayMode
 }
 
 export function BalanceCardView({ balances, priceMode }: BalanceCardViewProps) {
   return (
     <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
       {balances.map((balance) => {
-        const chainInfo = getChainInfo(balance.chainId);
-        const tokenLogo = getTokenLogo(balance.symbol);
-        const displayValue = getDisplayValue(balance, priceMode);
+        const chainInfo = getChainInfo(balance.chainId)
+        const tokenLogo = getTokenLogo(balance.symbol)
+        const displayValue = getDisplayValue(balance, priceMode)
 
         return (
           <Card
@@ -34,7 +34,7 @@ export function BalanceCardView({ balances, priceMode }: BalanceCardViewProps) {
                       src={tokenLogo}
                       alt={balance.symbol}
                       className="w-6 h-6 sm:w-8 sm:h-8 object-contain"
-                      onError={(e) => (e.currentTarget.style.display = "none")}
+                      onError={(e) => (e.currentTarget.style.display = 'none')}
                     />
                   </div>
                   {chainInfo && (
@@ -73,8 +73,8 @@ export function BalanceCardView({ balances, priceMode }: BalanceCardViewProps) {
               </div>
             </CardContent>
           </Card>
-        );
+        )
       })}
     </div>
-  );
+  )
 }

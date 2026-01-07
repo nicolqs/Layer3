@@ -1,4 +1,4 @@
-"use client";
+'use client'
 
 import {
   Card,
@@ -6,36 +6,36 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
+} from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
   TableBody,
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Layer3User } from "@/lib/types";
-import { Search } from "lucide-react";
-import { useMemo, useState } from "react";
-import { UserRow } from "./UserRow";
+} from '@/components/ui/table'
+import { Layer3User } from '@/lib/types'
+import { Search } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { UserRow } from './UserRow'
 
 interface LeaderboardTableProps {
-  users: Layer3User[];
-  isLoading?: boolean;
+  users: Layer3User[]
+  isLoading?: boolean
 }
 
 export function LeaderboardTable({ users, isLoading }: LeaderboardTableProps) {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('')
 
   const filteredUsers = useMemo(() => {
     return users.filter(
       (entry) =>
         entry.address?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         entry.username?.toLowerCase().includes(searchQuery.toLowerCase()),
-    );
-  }, [users, searchQuery]);
+    )
+  }, [users, searchQuery])
 
   return (
     <Card>
@@ -94,5 +94,5 @@ export function LeaderboardTable({ users, isLoading }: LeaderboardTableProps) {
         )}
       </CardContent>
     </Card>
-  );
+  )
 }

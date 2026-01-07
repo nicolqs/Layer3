@@ -1,21 +1,21 @@
-"use client";
+'use client'
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { CHAIN_CATEGORIES, POPULAR_CHAINS, getChainInfo } from "@/lib/chains";
-import { DATE_RANGE_OPTIONS, DateRangeFilter } from "@/lib/types";
+} from '@/components/ui/select'
+import { CHAIN_CATEGORIES, POPULAR_CHAINS, getChainInfo } from '@/lib/chains'
+import { DATE_RANGE_OPTIONS, DateRangeFilter } from '@/lib/types'
 
 interface TransactionFiltersProps {
-  selectedChain: number | "all";
-  setSelectedChain: (chain: number | "all") => void;
-  dateRange: DateRangeFilter;
-  setDateRange: (range: DateRangeFilter) => void;
+  selectedChain: number | 'all'
+  setSelectedChain: (chain: number | 'all') => void
+  dateRange: DateRangeFilter
+  setDateRange: (range: DateRangeFilter) => void
 }
 
 export function TransactionFilters({
@@ -31,12 +31,12 @@ export function TransactionFilters({
         {DATE_RANGE_OPTIONS.map((range) => (
           <Button
             key={range}
-            variant={dateRange === range ? "default" : "outline"}
+            variant={dateRange === range ? 'default' : 'outline'}
             size="sm"
             onClick={() => setDateRange(range)}
             className="transition-all text-xs sm:text-sm px-2.5 sm:px-3 h-8 sm:h-9 whitespace-nowrap"
           >
-            {range === "all" ? "All" : range.toUpperCase()}
+            {range === 'all' ? 'All' : range.toUpperCase()}
           </Button>
         ))}
       </div>
@@ -45,7 +45,7 @@ export function TransactionFilters({
       <Select
         value={selectedChain.toString()}
         onValueChange={(v: string) =>
-          setSelectedChain(v === "all" ? "all" : parseInt(v))
+          setSelectedChain(v === 'all' ? 'all' : parseInt(v))
         }
       >
         <SelectTrigger className="w-full sm:w-[280px] text-sm">
@@ -67,8 +67,8 @@ export function TransactionFilters({
                 {category}
               </div>
               {chainIds.map((chainId) => {
-                const chain = getChainInfo(chainId);
-                if (!chain) return null;
+                const chain = getChainInfo(chainId)
+                if (!chain) return null
                 return (
                   <SelectItem key={chainId} value={chainId.toString()}>
                     <div className="flex items-center gap-2.5">
@@ -77,10 +77,10 @@ export function TransactionFilters({
                         alt={chain.name}
                         className="w-5 h-5 rounded-full object-cover"
                         onError={(e) => {
-                          e.currentTarget.style.display = "none";
+                          e.currentTarget.style.display = 'none'
                           e.currentTarget.nextElementSibling?.classList.remove(
-                            "hidden",
-                          );
+                            'hidden',
+                          )
                         }}
                       />
                       <div
@@ -93,7 +93,7 @@ export function TransactionFilters({
                       </span>
                     </div>
                   </SelectItem>
-                );
+                )
               })}
             </div>
           ))}
@@ -103,9 +103,9 @@ export function TransactionFilters({
       {/* Quick Filter Badges */}
       <div className="flex flex-wrap gap-1.5 sm:gap-2">
         {POPULAR_CHAINS.map((chainId: number) => {
-          const chain = getChainInfo(chainId);
-          if (!chain) return null;
-          const isSelected = selectedChain === chainId;
+          const chain = getChainInfo(chainId)
+          if (!chain) return null
+          const isSelected = selectedChain === chainId
           return (
             <button
               key={chainId}
@@ -115,8 +115,8 @@ export function TransactionFilters({
                 transition-all duration-200 border
                 ${
                   isSelected
-                    ? "border-primary bg-primary text-primary-foreground shadow-sm scale-105"
-                    : "border-border hover:border-primary/50 hover:bg-accent hover:scale-105"
+                    ? 'border-primary bg-primary text-primary-foreground shadow-sm scale-105'
+                    : 'border-border hover:border-primary/50 hover:bg-accent hover:scale-105'
                 }
               `}
             >
@@ -125,14 +125,14 @@ export function TransactionFilters({
                   src={chain.logo}
                   alt={chain.name}
                   className="w-3 h-3 sm:w-4 sm:h-4 rounded-full object-cover"
-                  onError={(e) => (e.currentTarget.style.display = "none")}
+                  onError={(e) => (e.currentTarget.style.display = 'none')}
                 />
                 <span className="hidden sm:inline">{chain.name}</span>
               </div>
             </button>
-          );
+          )
         })}
       </div>
     </div>
-  );
+  )
 }

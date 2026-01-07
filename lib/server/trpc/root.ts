@@ -4,9 +4,9 @@
  * Combines all sub-routers into a single root router
  */
 
-import { router } from "./trpc";
-import { leaderboardRouter } from "./routers/leaderboard";
-import { userRouter } from "./routers/user";
+import { router } from './trpc'
+import { leaderboardRouter } from './routers/leaderboard'
+import { userRouter } from './routers/user'
 
 /**
  * Root application router
@@ -15,7 +15,7 @@ import { userRouter } from "./routers/user";
 export const appRouter = router({
   leaderboard: leaderboardRouter,
   user: userRouter,
-});
+})
 
 // Export type definition for client
-export type AppRouter = typeof appRouter;
+export type AppRouter = typeof appRouter

@@ -1,22 +1,22 @@
-"use client";
+'use client'
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { getRankStyle, getRankTierLabel } from "@/lib/rankUtils";
-import { User } from "@/lib/types";
-import { ExternalLink } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
+import { getRankStyle, getRankTierLabel } from '@/lib/rankUtils'
+import { User } from '@/lib/types'
+import { ExternalLink } from 'lucide-react'
 
 interface UserProfileCardProps {
-  user: User;
+  user: User
 }
 
 export function UserProfileCard({ user }: UserProfileCardProps) {
   // Calculate level from XP (every 1000 XP = 1 level)
-  const level = Math.floor((user.totalXP || 0) / 1000) || 1;
+  const level = Math.floor((user.totalXP || 0) / 1000) || 1
 
-  const rankStyle = getRankStyle(user.rank);
-  const RankIcon = rankStyle.icon;
+  const rankStyle = getRankStyle(user.rank)
+  const RankIcon = rankStyle.icon
 
   return (
     <Card className="relative overflow-hidden border-border/50 bg-gradient-to-br from-card via-card to-accent/10">
@@ -209,5 +209,5 @@ export function UserProfileCard({ user }: UserProfileCardProps) {
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }

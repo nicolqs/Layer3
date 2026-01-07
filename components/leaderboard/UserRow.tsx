@@ -1,12 +1,12 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { TableCell, TableRow } from "@/components/ui/table";
-import { Layer3User } from "@/lib/types";
-import Link from "next/link";
-import { RankBadge } from "./RankBadge";
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { TableCell, TableRow } from '@/components/ui/table'
+import { Layer3User } from '@/lib/types'
+import Link from 'next/link'
+import { RankBadge } from './RankBadge'
 
 interface UserRowProps {
-  user: Layer3User;
+  user: Layer3User
 }
 
 export function UserRow({ user }: UserRowProps) {
@@ -73,5 +73,5 @@ export function UserRow({ user }: UserRowProps) {
         </Badge>
       </TableCell>
     </TableRow>
-  );
+  )
 }

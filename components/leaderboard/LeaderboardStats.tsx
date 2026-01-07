@@ -1,20 +1,20 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Layer3User } from "@/lib/types";
-import { TrendingUp, Users, Zap } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Layer3User } from '@/lib/types'
+import { TrendingUp, Users, Zap } from 'lucide-react'
 
 interface LeaderboardStatsProps {
-  users: Layer3User[];
+  users: Layer3User[]
 }
 
 export function LeaderboardStats({ users }: LeaderboardStatsProps) {
-  const totalUsers = users.length;
-  const totalXP = users.reduce((acc, entry) => acc + entry.xp, 0);
+  const totalUsers = users.length
+  const totalXP = users.reduce((acc, entry) => acc + entry.xp, 0)
   const avgLevel =
     users.length > 0
       ? Math.round(
           users.reduce((acc, entry) => acc + entry.level, 0) / users.length,
         )
-      : 0;
+      : 0
 
   return (
     <div className="grid gap-4 md:grid-cols-3">
@@ -81,5 +81,5 @@ export function LeaderboardStats({ users }: LeaderboardStatsProps) {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

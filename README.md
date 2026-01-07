@@ -156,18 +156,18 @@ All API calls are type-safe through tRPC. No manual typing required!
 const { data: leaderboard } = trpc.leaderboard.list.useQuery({
   page: 1,
   limit: 50,
-  sortBy: "xp",
-});
+  sortBy: 'xp',
+})
 
 // Real-time subscription
 trpc.leaderboard.watchUserRank.useSubscription(
-  { address: "0x..." },
+  { address: '0x...' },
   {
     onData: (data) => {
-      toast.success(`Rank changed to #${data.rank}`);
+      toast.success(`Rank changed to #${data.rank}`)
     },
   },
-);
+)
 ```
 
 ## Supported Chains

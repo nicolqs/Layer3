@@ -1,9 +1,9 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TransactionStats as Stats } from "@/lib/types";
-import { Activity, CheckCircle, TrendingUp, Zap } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { TransactionStats as Stats } from '@/lib/types'
+import { Activity, CheckCircle, TrendingUp, Zap } from 'lucide-react'
 
 interface TransactionStatsProps {
-  stats: Stats;
+  stats: Stats
 }
 
 export function TransactionStats({ stats }: TransactionStatsProps) {
@@ -77,5 +77,5 @@ export function TransactionStats({ stats }: TransactionStatsProps) {
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

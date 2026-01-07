@@ -1,31 +1,31 @@
-"use client";
+'use client'
 
-import { Header } from "@/components/Header";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BalancesTab } from "@/components/user-detail/BalancesTab";
-import { LiveRankTracker } from "@/components/user-detail/LiveRankTracker";
-import { NFTsTab } from "@/components/user-detail/NFTsTab";
-import { TransactionsTab } from "@/components/user-detail/TransactionsTab";
-import { UserProfileCard } from "@/components/user-detail/UserProfileCard";
-import { trpc } from "@/lib/client/trpc";
+import { Header } from '@/components/Header'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { BalancesTab } from '@/components/user-detail/BalancesTab'
+import { LiveRankTracker } from '@/components/user-detail/LiveRankTracker'
+import { NFTsTab } from '@/components/user-detail/NFTsTab'
+import { TransactionsTab } from '@/components/user-detail/TransactionsTab'
+import { UserProfileCard } from '@/components/user-detail/UserProfileCard'
+import { trpc } from '@/lib/client/trpc'
 import {
   calculateTransactionStats,
   filterTransactionsByDateRange,
-} from "@/lib/transactionStats";
-import { DateRangeFilter, MultiChainTransaction } from "@/lib/types";
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
-import { use, useMemo, useState } from "react";
+} from '@/lib/transactionStats'
+import { DateRangeFilter, MultiChainTransaction } from '@/lib/types'
+import { ArrowLeft } from 'lucide-react'
+import Link from 'next/link'
+import { use, useMemo, useState } from 'react'
 
 export default function UserDetailPage({
   params,
 }: {
-  params: Promise<{ address: string }>;
+  params: Promise<{ address: string }>
 }) {
-  const { address } = use(params);
-  const [selectedChain, setSelectedChain] = useState<number | "all">("all");
-  const [dateRange, setDateRange] = useState<DateRangeFilter>("all");
+  const { address } = use(params)
+  const [selectedChain, setSelectedChain] = useState<number | 'all'>('all')
+  const [dateRange, setDateRange] = useState<DateRangeFilter>('all')
 
   // Use tRPC for all data fetching - fully type-safe!
   const {
@@ -34,37 +34,37 @@ export default function UserDetailPage({
     error: userError,
   } = trpc.user.get.useQuery({
     address,
-  });
+  })
 
   const { data: balances, isLoading: balancesLoading } =
     trpc.user.balances.useQuery({
       address,
-    });
+    })
 
   const { data: allTransactions, isLoading: transactionsLoading } =
     trpc.user.transactions.useQuery({
       address,
-      chainId: selectedChain === "all" ? undefined : selectedChain,
+      chainId: selectedChain === 'all' ? undefined : selectedChain,
       limit: 50,
-    });
+    })
 
   const { data: nfts, isLoading: nftsLoading } = trpc.user.nfts.useQuery({
     address,
-  });
+  })
 
   // Filter transactions by date range
   const transactions = useMemo(() => {
-    if (!allTransactions) return [];
+    if (!allTransactions) return []
     return filterTransactionsByDateRange(
       allTransactions,
       dateRange,
-    ) as MultiChainTransaction[];
-  }, [allTransactions, dateRange]);
+    ) as MultiChainTransaction[]
+  }, [allTransactions, dateRange])
 
   // Calculate stats
   const stats = useMemo(() => {
-    return calculateTransactionStats(transactions);
-  }, [transactions]);
+    return calculateTransactionStats(transactions)
+  }, [transactions])
 
   if (userLoading) {
     return (
@@ -77,7 +77,7 @@ export default function UserDetailPage({
           </div>
         </div>
       </>
-    );
+    )
   }
 
   if (userError || !user) {
@@ -104,7 +104,7 @@ export default function UserDetailPage({
           </div>
         </div>
       </>
-    );
+    )
   }
 
   return (
@@ -159,5 +159,5 @@ export default function UserDetailPage({
         </div>
       </div>
     </>
-  );
+  )
 }

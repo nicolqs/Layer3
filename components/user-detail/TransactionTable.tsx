@@ -1,5 +1,5 @@
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
   TableBody,
@@ -7,16 +7,16 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { CHAIN_EXPLORERS } from "@/lib/chains";
-import { formatRelativeTime } from "@/lib/transactionStats";
-import { MultiChainTransaction } from "@/lib/types";
-import { Activity, CheckCircle, ExternalLink, XCircle } from "lucide-react";
+} from '@/components/ui/table'
+import { CHAIN_EXPLORERS } from '@/lib/chains'
+import { formatRelativeTime } from '@/lib/transactionStats'
+import { MultiChainTransaction } from '@/lib/types'
+import { Activity, CheckCircle, ExternalLink, XCircle } from 'lucide-react'
 
 interface TransactionTableProps {
-  transactions: MultiChainTransaction[];
-  address: string;
-  isLoading: boolean;
+  transactions: MultiChainTransaction[]
+  address: string
+  isLoading: boolean
 }
 
 export function TransactionTable({
@@ -31,7 +31,7 @@ export function TransactionTable({
           <Skeleton key={i} className="h-14 sm:h-16 w-full animate-pulse" />
         ))}
       </div>
-    );
+    )
   }
 
   if (!transactions || transactions.length === 0) {
@@ -43,7 +43,7 @@ export function TransactionTable({
           Try selecting a different chain or date range
         </p>
       </div>
-    );
+    )
   }
 
   return (
@@ -72,9 +72,9 @@ export function TransactionTable({
           </TableHeader>
           <TableBody>
             {transactions.map((tx, index) => {
-              const isSent = tx.from.toLowerCase() === address.toLowerCase();
-              const isSuccess = tx.isError === "0";
-              const chainConfig = CHAIN_EXPLORERS[tx.chainId];
+              const isSent = tx.from.toLowerCase() === address.toLowerCase()
+              const isSuccess = tx.isError === '0'
+              const chainConfig = CHAIN_EXPLORERS[tx.chainId]
 
               return (
                 <TableRow
@@ -90,16 +90,16 @@ export function TransactionTable({
                         alt={tx.chainName}
                         className="w-4 h-4 sm:w-5 sm:h-5 rounded-full object-cover flex-shrink-0"
                         onError={(e) => {
-                          e.currentTarget.style.display = "none";
+                          e.currentTarget.style.display = 'none'
                           e.currentTarget.nextElementSibling?.classList.remove(
-                            "hidden",
-                          );
+                            'hidden',
+                          )
                         }}
                       />
                       <div
                         className="w-4 h-4 sm:w-5 sm:h-5 rounded-full flex-shrink-0 hidden"
                         style={{
-                          backgroundColor: chainConfig?.color || "#888",
+                          backgroundColor: chainConfig?.color || '#888',
                         }}
                       />
                       <span className="text-[10px] sm:text-xs font-medium whitespace-nowrap hidden sm:inline">
@@ -129,25 +129,25 @@ export function TransactionTable({
                   {/* Type (desktop only) */}
                   <TableCell className="py-2.5 sm:py-4 hidden sm:table-cell">
                     <Badge
-                      variant={isSent ? "default" : "secondary"}
+                      variant={isSent ? 'default' : 'secondary'}
                       className={`transition-all text-[10px] sm:text-xs ${
                         isSent
-                          ? "bg-blue-500/20 text-blue-500 hover:bg-blue-500/30 border-blue-500/50"
-                          : "bg-green-500/20 text-green-500 hover:bg-green-500/30 border-green-500/50"
+                          ? 'bg-blue-500/20 text-blue-500 hover:bg-blue-500/30 border-blue-500/50'
+                          : 'bg-green-500/20 text-green-500 hover:bg-green-500/30 border-green-500/50'
                       }`}
                     >
-                      {isSent ? "↑ Sent" : "↓ Rcv"}
+                      {isSent ? '↑ Sent' : '↓ Rcv'}
                     </Badge>
                   </TableCell>
 
                   {/* Status (tablet+ only) */}
                   <TableCell className="py-2.5 sm:py-4 hidden md:table-cell">
                     <Badge
-                      variant={isSuccess ? "outline" : "destructive"}
+                      variant={isSuccess ? 'outline' : 'destructive'}
                       className={`transition-all text-xs ${
                         isSuccess
-                          ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/50"
-                          : "bg-red-500/20 text-red-500 border-red-500/50"
+                          ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/50'
+                          : 'bg-red-500/20 text-red-500 border-red-500/50'
                       }`}
                     >
                       {isSuccess ? (
@@ -166,13 +166,13 @@ export function TransactionTable({
                   <TableCell className="text-right font-mono py-2.5 sm:py-4">
                     <div className="flex flex-col items-end">
                       <span
-                        className={`text-[10px] sm:text-xs ${isSent ? "text-blue-500" : "text-green-500"}`}
+                        className={`text-[10px] sm:text-xs ${isSent ? 'text-blue-500' : 'text-green-500'}`}
                       >
-                        {isSent ? "-" : "+"}
+                        {isSent ? '-' : '+'}
                         {(parseInt(tx.value) / 1e18).toFixed(4)}
                       </span>
                       <span className="text-[9px] sm:text-[10px] text-muted-foreground sm:hidden">
-                        {isSent ? "↑" : "↓"} {isSuccess ? "✓" : "✗"}
+                        {isSent ? '↑' : '↓'} {isSuccess ? '✓' : '✗'}
                       </span>
                     </div>
                   </TableCell>
@@ -187,11 +187,11 @@ export function TransactionTable({
                     </div>
                   </TableCell>
                 </TableRow>
-              );
+              )
             })}
           </TableBody>
         </Table>
       </div>
     </div>
-  );
+  )
 }

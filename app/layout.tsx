@@ -1,32 +1,32 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import { Providers } from "./providers";
-import { Toaster } from "sonner";
-import { LiveLeaderboardUpdates } from "@/components/leaderboard/LiveLeaderboardUpdates";
+import type { Metadata } from 'next'
+import { Geist, Geist_Mono } from 'next/font/google'
+import './globals.css'
+import { Providers } from './providers'
+import { Toaster } from 'sonner'
+import { LiveLeaderboardUpdates } from '@/components/leaderboard/LiveLeaderboardUpdates'
 
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
+})
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
+})
 
 export const metadata: Metadata = {
-  title: "Layer3 Leaderboard",
-  description: "Track top performers in the Layer3 ecosystem",
+  title: 'Layer3 Leaderboard',
+  description: 'Track top performers in the Layer3 ecosystem',
   icons: {
-    icon: "/favicon.ico",
+    icon: '/favicon.ico',
   },
-};
+}
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
@@ -45,5 +45,5 @@ export default function RootLayout({
         <Toaster richColors position="top-right" />
       </body>
     </html>
-  );
+  )
 }

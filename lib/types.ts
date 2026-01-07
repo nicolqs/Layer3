@@ -1,116 +1,116 @@
 export interface User {
-  address: string;
-  username?: string;
-  avatar?: string;
-  totalXP: number;
-  rank: number;
-  gmStreak: number;
-  nftCount: number;
-  joinedAt?: string;
+  address: string
+  username?: string
+  avatar?: string
+  totalXP: number
+  rank: number
+  gmStreak: number
+  nftCount: number
+  joinedAt?: string
 }
 
 export interface Layer3User {
-  rank: number;
-  address: string;
-  avatarCid?: string;
-  username?: string;
-  gmStreak: number;
-  xp: number;
-  level: number;
+  rank: number
+  address: string
+  avatarCid?: string
+  username?: string
+  gmStreak: number
+  xp: number
+  level: number
 }
 
 export interface EtherscanTransaction {
-  blockNumber: string;
-  timeStamp: string;
-  hash: string;
-  nonce: string;
-  blockHash: string;
-  transactionIndex: string;
-  from: string;
-  to: string;
-  value: string;
-  gas: string;
-  gasPrice: string;
-  isError: string;
-  txreceipt_status: string;
-  input: string;
-  contractAddress: string;
-  cumulativeGasUsed: string;
-  gasUsed: string;
-  confirmations: string;
-  methodId: string;
-  functionName: string;
+  blockNumber: string
+  timeStamp: string
+  hash: string
+  nonce: string
+  blockHash: string
+  transactionIndex: string
+  from: string
+  to: string
+  value: string
+  gas: string
+  gasPrice: string
+  isError: string
+  txreceipt_status: string
+  input: string
+  contractAddress: string
+  cumulativeGasUsed: string
+  gasUsed: string
+  confirmations: string
+  methodId: string
+  functionName: string
 }
 
 export interface MultiChainTransaction extends EtherscanTransaction {
-  chainId: number;
-  chainName: string;
+  chainId: number
+  chainName: string
 }
 
-export const DATE_RANGE_OPTIONS = ["all", "7d", "30d", "90d"] as const;
-export type DateRangeFilter = (typeof DATE_RANGE_OPTIONS)[number];
+export const DATE_RANGE_OPTIONS = ['all', '7d', '30d', '90d'] as const
+export type DateRangeFilter = (typeof DATE_RANGE_OPTIONS)[number]
 
 export interface TransactionStats {
-  totalTransactions: number;
-  totalVolume: string;
-  successRate: number;
-  totalGasFees: string;
+  totalTransactions: number
+  totalVolume: string
+  successRate: number
+  totalGasFees: string
 }
 
 export interface TokenBalance {
-  symbol: string;
-  name: string;
-  balance: string;
-  decimals: number;
-  chainId: number;
-  price?: number;
-  value?: number;
-  logo?: string;
+  symbol: string
+  name: string
+  balance: string
+  decimals: number
+  chainId: number
+  price?: number
+  value?: number
+  logo?: string
 }
 
 export interface NFTCollection {
-  name: string;
-  slug?: string;
-  externalUrl?: string;
-  bannerImageUrl?: string;
+  name: string
+  slug?: string
+  externalUrl?: string
+  bannerImageUrl?: string
 }
 
 export interface NFTImage {
-  cachedUrl?: string;
-  thumbnailUrl?: string;
-  pngUrl?: string;
-  contentType?: string;
-  size?: number;
+  cachedUrl?: string
+  thumbnailUrl?: string
+  pngUrl?: string
+  contentType?: string
+  size?: number
 }
 
 export interface NFTMetadata {
-  name?: string;
-  description?: string;
-  image?: string;
-  external_url?: string;
-  attributes?: Array<{ trait_type: string; value: string }>;
+  name?: string
+  description?: string
+  image?: string
+  external_url?: string
+  attributes?: Array<{ trait_type: string; value: string }>
 }
 
 export interface AlchemyNFT {
-  tokenId: string;
-  tokenType: string;
-  name?: string;
-  description?: string;
-  image: NFTImage;
+  tokenId: string
+  tokenType: string
+  name?: string
+  description?: string
+  image: NFTImage
   raw: {
-    metadata: NFTMetadata;
-    tokenUri?: string;
-  };
-  collection?: NFTCollection;
+    metadata: NFTMetadata
+    tokenUri?: string
+  }
+  collection?: NFTCollection
   mint?: {
-    mintAddress?: string;
-    blockNumber?: number;
-    timestamp?: string;
-  };
+    mintAddress?: string
+    blockNumber?: number
+    timestamp?: string
+  }
   contract: {
-    address: string;
-    name?: string;
-    symbol?: string;
-    totalSupply?: string;
-  };
+    address: string
+    name?: string
+    symbol?: string
+    totalSupply?: string
+  }
 }
