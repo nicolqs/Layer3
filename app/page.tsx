@@ -1,27 +1,33 @@
-'use client';
+"use client";
 
-import { LeaderboardHeader } from '@/components/leaderboard/LeaderboardHeader';
-import { LeaderboardStats } from '@/components/leaderboard/LeaderboardStats';
-import { LeaderboardTable } from '@/components/leaderboard/LeaderboardTable';
-import { fetcher } from '@/lib/fetcher';
-import { Layer3User } from '@/lib/types';
-import { useQuery } from '@tanstack/react-query';
+import { Header } from "@/components/Header";
+import { LeaderboardStats } from "@/components/leaderboard/LeaderboardStats";
+import { LeaderboardSubHeader } from "@/components/leaderboard/LeaderboardSubHeader";
+import { LeaderboardTable } from "@/components/leaderboard/LeaderboardTable";
+import { LiveLeaderboardUpdates } from "@/components/leaderboard/LiveLeaderboardUpdates";
+import { trpc } from "@/lib/client/trpc";
 
 export default function LeaderboardPage() {
-  const { data, isLoading } = useQuery({
-    queryKey: ['leaderboard'],
-    queryFn: () => fetcher<Layer3User[]>('/api/leaderboard'),
+  // Use tRPC for type-safe API calls
+  const { data, isLoading } = trpc.leaderboard.list.useQuery({
+    page: 1,
+    limit: 50,
+    sortBy: "xp",
   });
 
-  const leaderboard = Array.isArray(data) ? data : [];
+  const leaderboard = data?.users ?? [];
 
   return (
-    <div className="min-h-screen bg-background p-4 sm:p-8">
-      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
-        <LeaderboardHeader />
-        <LeaderboardStats users={leaderboard} />
-        <LeaderboardTable users={leaderboard} isLoading={isLoading} />
+    <>
+      <Header />
+      <div className="min-h-screen bg-background p-4 sm:p-8 md:pb-20">
+        <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
+          <LeaderboardSubHeader />
+          <LeaderboardTable users={leaderboard} isLoading={isLoading} />
+          <LeaderboardStats users={leaderboard} />
+        </div>
       </div>
-    </div>
+      <LiveLeaderboardUpdates />
+    </>
   );
 }

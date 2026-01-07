@@ -1,7 +1,9 @@
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { CHAIN_EXPLORERS } from '@/lib/chains';
 import { AlchemyNFT } from '@/lib/types';
+import Image from 'next/image';
 
 interface NFTsTabProps {
   nfts?: AlchemyNFT[];
@@ -29,9 +31,13 @@ export function NFTsTab({ nfts, isLoading }: NFTsTabProps) {
               const nftName = nft.name || nft.raw?.metadata?.name || `Token #${nft.tokenId}`;
               const collectionName = nft.collection?.name || nft.contract?.name || 'Unknown';
               
+              // NFTs are fetched from Ethereum mainnet (chainId: 1)
+              const chainId = 1;
+              const chainConfig = CHAIN_EXPLORERS[chainId];
+              
               return (
-                <Card key={`${nft.contract.address}-${nft.tokenId}`} className="overflow-hidden">
-                  <div className="aspect-square bg-muted">
+                <Card key={`${nft.contract.address}-${nft.tokenId}`} className="overflow-hidden group hover:shadow-lg transition-shadow">
+                  <div className="relative aspect-square bg-muted">
                     {imageUrl ? (
                       <img
                         loading="lazy"
@@ -47,15 +53,29 @@ export function NFTsTab({ nfts, isLoading }: NFTsTabProps) {
                         No Image
                       </div>
                     )}
+                    
+                    {/* Chain badge overlay */}
+                    <div className="absolute top-2 right-2">
+                      <Badge 
+                        variant="secondary" 
+                        className="flex items-center gap-1 bg-background/90 backdrop-blur-sm border-border/50 shadow-lg text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5"
+                      >
+                        <Image
+                          src={chainConfig.logo}
+                          alt={chainConfig.name}
+                          width={12}
+                          height={12}
+                          className="flex-shrink-0"
+                        />
+                        <span className="hidden sm:inline">{chainConfig.name}</span>
+                      </Badge>
+                    </div>
                   </div>
                   <CardHeader className="p-3 sm:p-4">
                     <CardTitle className="text-xs sm:text-sm truncate">{nftName}</CardTitle>
                     <CardDescription className="text-[10px] sm:text-xs truncate">
                       {collectionName}
                     </CardDescription>
-                    <Badge variant="outline" className="w-fit text-[10px] sm:text-xs mt-1.5 sm:mt-2">
-                      Ethereum
-                    </Badge>
                   </CardHeader>
                 </Card>
               );

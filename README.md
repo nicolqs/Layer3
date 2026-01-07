@@ -4,47 +4,54 @@ A modern, full-featured leaderboard and user analytics dashboard for the Layer3 
 
 ## Features
 
-- **Leaderboard**: Real-time rankings of top performers with XP, quests completed, and rank changes
-- **User Profiles**: Detailed user pages with on-chain data
-- **Multi-Chain Support**: Track activity across Ethereum, Polygon, Arbitrum, Optimism, and Base
-- **Token Balances**: View native and ERC20 token holdings across all chains
-- **Transaction History**: Complete transaction timeline with multi-chain support
-- **NFT Gallery**: Display NFT collections from all supported chains
-- **Dark Mode**: Elegant light/dark theme toggle (defaults to dark)
-- **Real-time Data**: Uses React Query for efficient data fetching and caching
+- **🏆 Live Leaderboard**: Real-time rankings with automatic updates and subscriptions
+- **👤 User Profiles**: Detailed user pages with on-chain data
+- **🔗 Multi-Chain Support**: Track activity across 45+ EVM chains
+- **💰 Token Balances**: View native and ERC20 token holdings across all chains
+- **📊 Transaction History**: Complete transaction timeline with multi-chain support
+- **🖼️ NFT Gallery**: Display NFT collections with Alchemy integration
+- **🌓 Dark Mode**: Elegant light/dark theme toggle (defaults to dark)
+- **⚡ Real-time Updates**: tRPC subscriptions for live rank changes and leaderboard updates
+- **🔒 Type Safety**: End-to-end TypeScript with tRPC
 
 ## Tech Stack
 
 - **Framework**: Next.js 15 (App Router)
+- **API Layer**: tRPC for type-safe, real-time APIs
 - **Styling**: Tailwind CSS + shadcn/ui
-- **Blockchain**: Viem for multi-chain interactions
-- **TypeScript**: Full type safety
+- **Blockchain**: Viem for multi-chain interactions (45+ chains)
+- **TypeScript**: Full end-to-end type safety
 - **State Management**: React Query (TanStack Query)
-- **HTTP Client**: Native fetch API
+- **Real-time**: tRPC subscriptions with Server-Sent Events
+- **Notifications**: Sonner for toast notifications
 
 ## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────┐
 │                External Services                     │
-│  Layer3 API │ RPC Nodes │ Etherscan │ Alchemy NFT  │
+│  Layer3 API │ 45+ RPC Nodes │ Etherscan │ Alchemy  │
 └─────────────────────────────────────────────────────┘
                          │
                          ▼
 ┌─────────────────────────────────────────────────────┐
-│                  API Routes (Proxy)                  │
-│   /api/leaderboard                                   │
-│   /api/user/[address]                                │
-│   /api/user/[address]/balances                       │
-│   /api/user/[address]/transactions                   │
-│   /api/user/[address]/nfts                           │
+│              tRPC API Layer (/api/trpc)              │
+│  ┌───────────────────┬────────────────────────┐     │
+│  │  Leaderboard      │  User Router           │     │
+│  │  - list           │  - get                 │     │
+│  │  - getUserRank    │  - balances            │     │
+│  │  - watchUserRank* │  - transactions        │     │
+│  │  - watchLeaderboard* │  - nfts             │     │
+│  └───────────────────┴────────────────────────┘     │
+│           *Real-time subscriptions                   │
 └─────────────────────────────────────────────────────┘
                          │
                          ▼
 ┌─────────────────────────────────────────────────────┐
-│              Frontend (Next.js App)                  │
+│          Frontend (Type-Safe tRPC Client)            │
 │   Leaderboard Page │ User Detail Page                │
-│   shadcn/ui Components                               │
+│   shadcn/ui Components │ Live Updates                │
+│   Full TypeScript Auto-completion                    │
 └─────────────────────────────────────────────────────┘
 ```
 
@@ -86,72 +93,135 @@ Open [http://localhost:3000](http://localhost:3000) to see the app.
 ```
 layer3/
 ├── app/
-│   ├── api/              # API routes
-│   │   ├── leaderboard/  # Leaderboard endpoint
-│   │   └── user/         # User-related endpoints
-│   ├── user/             # User detail pages
+│   ├── api/
+│   │   └── trpc/[trpc]/  # Single tRPC endpoint
+│   ├── user/[address]/   # User detail pages
 │   ├── layout.tsx        # Root layout with providers
 │   ├── page.tsx          # Leaderboard page
-│   └── providers.tsx     # React Query provider
+│   └── providers.tsx     # tRPC + React Query providers
 ├── components/
+│   ├── leaderboard/      # Leaderboard components
+│   │   ├── LiveLeaderboardUpdates.tsx
+│   │   └── ...
+│   ├── user-detail/      # User detail components
+│   │   ├── LiveRankTracker.tsx
+│   │   └── ...
 │   └── ui/               # shadcn/ui components
 ├── lib/
-│   ├── viem.ts           # Viem clients for 5 chains
-│   ├── fetcher.ts        # Fetch utility with error handling
+│   ├── server/trpc/      # tRPC server
+│   │   ├── routers/      # API routers
+│   │   │   ├── leaderboard.ts
+│   │   │   └── user.ts
+│   │   ├── trpc.ts       # tRPC config
+│   │   └── root.ts       # Root router
+│   ├── client/
+│   │   └── trpc.ts       # tRPC client
+│   ├── viem.ts           # Viem clients for 45+ chains
+│   ├── chains.ts         # Chain configurations
+│   ├── chainApiClients.ts # Chain API clients
 │   ├── types.ts          # TypeScript types
 │   └── utils.ts          # Utility functions
 └── public/               # Static assets
 ```
 
-## API Endpoints
+## tRPC API
 
-### Leaderboard
-- `GET /api/leaderboard?limit=100&offset=0`
-- Returns paginated leaderboard data
+All API calls are type-safe through tRPC. No manual typing required!
 
-### User Data
-- `GET /api/user/[address]`
-- Returns user profile with XP, rank, and stats
+### Leaderboard Router (`trpc.leaderboard.*`)
 
-### Balances
-- `GET /api/user/[address]/balances`
-- Returns token balances across all chains
+**Queries:**
+- `list({ page, limit, sortBy })` - Get paginated leaderboard
+- `getUserRank({ address })` - Get user's current rank
 
-### Transactions
-- `GET /api/user/[address]/transactions?chainId=1&limit=20`
-- Returns transaction history with optional chain filter
+**Subscriptions (Real-time):**
+- `watchUserRank({ address })` - Subscribe to user rank changes
+- `watchLeaderboard({ limit })` - Subscribe to leaderboard updates
 
-### NFTs
-- `GET /api/user/[address]/nfts?chainId=1`
-- Returns NFT collection with optional chain filter
+### User Router (`trpc.user.*`)
+
+**Queries:**
+- `get({ address })` - Get user profile with XP, rank, and stats
+- `balances({ address })` - Get token balances across 45+ chains
+- `transactions({ address, chainId?, page?, limit? })` - Get transaction history
+- `nfts({ address })` - Get NFT collection from Alchemy
+
+### Usage Example
+
+```typescript
+// Frontend - Full type safety!
+const { data: leaderboard } = trpc.leaderboard.list.useQuery({
+  page: 1,
+  limit: 50,
+  sortBy: 'xp',
+});
+
+// Real-time subscription
+trpc.leaderboard.watchUserRank.useSubscription(
+  { address: '0x...' },
+  {
+    onData: (data) => {
+      toast.success(`Rank changed to #${data.rank}`);
+    },
+  }
+);
+```
 
 ## Supported Chains
 
-- Ethereum (Chain ID: 1)
-- Polygon (Chain ID: 137)
-- Arbitrum (Chain ID: 42161)
-- Optimism (Chain ID: 10)
-- Base (Chain ID: 8453)
+**45+ EVM Chains** including:
+
+**Ethereum & L2s (19):**
+- Ethereum, Optimism, Arbitrum One, Arbitrum Nova, Base, Blast
+- Linea, Zora, Scroll, Taiko, Mantle, Metis, Mode
+- Redstone, Cyber, Fraxtal, Kroma, Lyra, Loot
+
+**Major L1s (10):**
+- BNB Chain, Polygon, Polygon zkEVM, Avalanche, Fantom
+- Moonbeam, Moonriver, Cronos, Gnosis, Celo
+
+**Advanced & zk (13):**
+- zkSync Era, Aurora, Harmony, OKX Chain, Shibarium
+- BitTorrent, Ethereum Classic, HECO, Palm, Rootstock
+- Oasis Emerald, XDC
+
+See `lib/chains.ts` for full list with chain IDs and configurations.
 
 ## Development Notes
 
-- Mock data is used by default for development
-- Replace API route implementations with actual Layer3 API calls
-- Add Alchemy API integration for production NFT data
-- Add Etherscan/Polygonscan/etc. API calls for transaction history
-- Configure RPC endpoints in `lib/viem.ts` for production
+- **Type Safety**: All API calls are type-safe through tRPC
+- **Real-time Updates**: Subscriptions work out of the box
+- **Mock Data**: Used by default for development
+- **45+ Chains**: Pre-configured and ready to use
+- **No Manual Typing**: tRPC infers types automatically
+
+## What's Implemented
+
+- ✅ tRPC with full type safety
+- ✅ Real-time subscriptions for leaderboard & rank tracking
+- ✅ 45+ chain support with logos and metadata
+- ✅ Alchemy NFT integration
+- ✅ Etherscan API integration (all chains)
+- ✅ Multi-chain transaction aggregation
+- ✅ ERC20 token balance tracking
+- ✅ Dark/Light mode
+- ✅ Mobile responsive design
+- ✅ Toast notifications for rank changes
 
 ## Future Enhancements
 
-- [ ] Real Layer3 API integration
-- [ ] Alchemy NFT API integration
-- [ ] Etherscan API integration for all chains
+- [ ] Real Layer3 API integration (currently using mock)
+- [ ] WebSocket support for better real-time performance
+- [ ] Portfolio value tracking over time
+- [ ] Gas price tracker across chains
+- [ ] Transaction simulator
+- [ ] ENS/domain resolution (ENS, Lens, Farcaster)
+- [ ] Wallet connection (WalletConnect, MetaMask)
 - [ ] Charts and analytics (Recharts)
-- [ ] ENS resolution
-- [ ] Wallet connection
 - [ ] Quest details page
-- [ ] Filters and advanced search
+- [ ] Advanced filters and search
 - [ ] Export data functionality
+- [ ] CSV/PDF reports
 
 ## Deploy on Vercel
 
