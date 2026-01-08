@@ -207,7 +207,8 @@ export default function UserDetailPage({
               >
                 <Receipt className="h-4 w-4 sm:h-5 sm:w-5" />
                 <span className="flex items-center gap-2">
-                  Transactions
+                  <span className="sm:hidden">Txns</span>
+                  <span className="hidden sm:inline">Transactions</span>
                   {transactions.length > 0 && (
                     <Badge
                       variant="outline"
