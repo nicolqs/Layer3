@@ -161,7 +161,7 @@ export function decodeTransactionIntent(
   const isSent = tx.from.toLowerCase() === userAddress.toLowerCase()
   const signature = tx.input.slice(0, 10)
   const value = BigInt(tx.value)
-  const hasValue = value > 0n
+  const hasValue = value > BigInt(0)
 
   // Check for known function signatures
   const functionName = FUNCTION_SIGNATURES[signature]

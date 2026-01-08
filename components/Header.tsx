@@ -1,3 +1,6 @@
+import Link from 'next/link'
+import { Layer3Icon } from './Layer3Icon'
+
 export function Header() {
   return (
     <header className="h-[30px] border-b border-border/50 bg-background/50 backdrop-blur-sm">
@@ -5,17 +8,12 @@ export function Header() {
         <div className="relative">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-2xl -z-10" />
 
-          <div className="flex items-center gap-3">
+          <Link
+            href="/"
+            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+          >
             {/* Icon SVG */}
-            <svg
-              viewBox="0 0 98 98"
-              fill="currentColor"
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 max-h-[12px] text-foreground flex-shrink-0"
-            >
-              <path d="M0 62.517a3.38 3.38 0 0 1 3.38-3.38H42.24V98H3.38A3.38 3.38 0 0 1 0 94.62V62.517ZM42.241 59.138h52.38A3.38 3.38 0 0 1 98 62.517V94.62A3.38 3.38 0 0 1 94.62 98H81.936a6.759 6.759 0 0 1-4.908-2.113L42.24 59.137Z" />
-              <path d="M0 3.38A3.38 3.38 0 0 1 3.38 0h35.482a3.38 3.38 0 0 1 3.38 3.38v55.758L1.936 18.1A6.759 6.759 0 0 1 0 13.365V3.379Z" />
-            </svg>
+            <Layer3Icon className="h-5 max-h-[12px] text-foreground flex-shrink-0" />
 
             {/* Text SVG */}
             <svg
@@ -30,7 +28,7 @@ export function Header() {
                 className="text-foreground"
               />
             </svg>
-          </div>
+          </Link>
         </div>
       </div>
     </header>

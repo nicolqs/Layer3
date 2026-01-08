@@ -1,6 +1,7 @@
 'use client'
 
 import { Header } from '@/components/Header'
+import { Layer3Icon } from '@/components/Layer3Icon'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -28,7 +29,6 @@ export default function UserDetailPage({
   const [selectedChain, setSelectedChain] = useState<number | 'all'>('all')
   const [dateRange, setDateRange] = useState<DateRangeFilter>('all')
 
-  // Use tRPC for all data fetching - fully type-safe!
   const {
     data: user,
     isLoading: userLoading,
@@ -80,10 +80,32 @@ export default function UserDetailPage({
     return (
       <>
         <Header />
-        <div className="min-h-screen bg-background p-8">
-          <div className="max-w-7xl mx-auto space-y-8">
-            <Skeleton className="h-8 w-64" />
-            <Skeleton className="h-48 w-full" />
+        <div className="min-h-screen bg-background p-8 flex items-center justify-center">
+          <div className="max-w-2xl mx-auto text-center space-y-6">
+            {/* Crypto-native spinning blocks animation */}
+            <div className="relative inline-block">
+              <Layer3Icon className="h-16 w-16 text-primary animate-spin" />
+              <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full animate-pulse" />
+            </div>
+
+            {/* Engaging message */}
+            <div className="space-y-2">
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                Indexing the blockchain...
+              </h2>
+              <p className="text-muted-foreground text-sm">
+                Fetching on-chain activity, balances, NFTs, and transaction
+                history across multiple chains.
+                <br />
+                This usually takes just a moment.
+              </p>
+            </div>
+
+            {/* Optional: Loading skeleton hints */}
+            <div className="space-y-3 pt-4">
+              <Skeleton className="h-4 w-3/4 mx-auto" />
+              <Skeleton className="h-4 w-1/2 mx-auto" />
+            </div>
           </div>
         </div>
       </>
@@ -234,7 +256,7 @@ export default function UserDetailPage({
 
             <TabsContent value="transactions">
               <TransactionsTab
-                transactions={transactions}
+                transactions={allTransactions}
                 stats={stats}
                 isLoading={transactionsLoading}
                 address={address}

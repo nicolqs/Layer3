@@ -15,6 +15,7 @@ export interface Layer3User {
   address: string
   avatarCid?: string
   username?: string
+  ensName?: string
   gmStreak: number
   xp: number
   level: number
@@ -114,17 +115,6 @@ export interface AlchemyNFT {
     symbol?: string
     totalSupply?: string
   }
-}
-
-/**
- * Service Health Tracking for Graceful Degradation
- */
-export interface ServiceHealth {
-  service: string
-  status: 'ok' | 'degraded' | 'unavailable'
-  message?: string
-  chainId?: number
-  chainName?: string
 }
 
 export interface BalancesResponse {

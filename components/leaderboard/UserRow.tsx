@@ -40,11 +40,13 @@ export function UserRow({ user }: UserRowProps) {
           </Avatar>
           <div className="min-w-0">
             <div className="font-medium text-sm sm:text-base truncate">
-              {user.username ||
+              {user.ensName ||
+                user.username ||
                 `${user.address.slice(0, 6)}...${user.address.slice(-4)}`}
             </div>
-            {user.username && (
+            {(user.ensName || user.username) && (
               <div className="text-xs text-muted-foreground hidden sm:block">
+                {user.ensName && user.username && `@${user.username} · `}
                 {user.address.slice(0, 6)}...{user.address.slice(-4)}
               </div>
             )}

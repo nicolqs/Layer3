@@ -3,7 +3,7 @@
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { trpc } from '@/lib/client/trpc'
 import { Activity } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 /**
  * LiveLeaderboardUpdates Component - Compact Sticky Footer
@@ -18,6 +18,15 @@ export function LiveLeaderboardUpdates() {
   const [updateCount, setUpdateCount] = useState(0)
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null)
   const [isFlashing, setIsFlashing] = useState(false)
+  const [currentTime, setCurrentTime] = useState(() => Date.now())
+
+  // Update current time every second for "time ago" display
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(Date.now())
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [])
 
   // Subscribe to leaderboard updates
   trpc.leaderboard.watchLeaderboard.useSubscription(
@@ -30,7 +39,7 @@ export function LiveLeaderboardUpdates() {
 
         setTimeout(() => setIsFlashing(false), 800)
       },
-      onError: (err) => {
+      onError: () => {
         console.log('Subscription reconnecting...')
       },
     },
@@ -40,7 +49,7 @@ export function LiveLeaderboardUpdates() {
   const getTimeSinceUpdate = () => {
     if (!lastUpdate) return 'Connecting...'
 
-    const seconds = Math.floor((Date.now() - lastUpdate.getTime()) / 1000)
+    const seconds = Math.floor((currentTime - lastUpdate.getTime()) / 1000)
 
     if (seconds < 5) return 'Just now'
     if (seconds < 60) return `${seconds}s ago`

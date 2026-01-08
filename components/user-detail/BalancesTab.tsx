@@ -123,8 +123,8 @@ export function BalancesTab({ balances, isLoading }: BalancesTabProps) {
             <Wallet className="h-16 w-16 text-muted-foreground/20 mb-4" />
             <h3 className="text-lg font-semibold mb-1">No Assets Found</h3>
             <p className="text-sm text-muted-foreground text-center max-w-sm">
-              This address doesn't hold any tokens we track, or they might be on
-              unsupported chains.
+              This address doesn&apos;t hold any tokens we track, or they might
+              be on unsupported chains.
             </p>
           </CardContent>
         </Card>

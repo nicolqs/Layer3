@@ -119,6 +119,7 @@ Open [http://localhost:3000](http://localhost:3000)
 **Features to Add:**
 
 - **Wallet Connection**: WalletConnect, MetaMask, view your own data
+- **Solana support**: SOL balance, NFTs, recent txs
 - **Charts**: Portfolio value over time, XP progression (Recharts ready)
 - **Advanced Filters**: Value ranges, protocol-specific, multi-chain select
 - **Exports**: CSV/PDF reports for tax season
